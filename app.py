@@ -1,8 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
 
 app = FastAPI(title="Standup Summarizer API")
+
+templates = Jinja2Templates(directory="templates")
 
 class SummaryRequest(BaseModel):
     text: str
@@ -11,8 +14,8 @@ class SummaryRequest(BaseModel):
     slide_count: Optional[int] = 0
 
 @app.get("/")
-def home():
-    return {"message":"My FastAPI Backend is Alive"}
+def home(request:Request):
+    return templates.TemplateResponse(request=request,name="index.html")
 
 @app.post("/summary")
 
