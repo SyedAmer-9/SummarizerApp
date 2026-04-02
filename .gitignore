@@ -1,0 +1,4 @@
+summariser_lib/
+.env
+__pycache__/
+
