@@ -1,10 +1,21 @@
-from fastapi import FastAPI, Request
+import os
+from fastapi import FastAPI, Request,HTTPException
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
+from dotenv import load_dotenv
+import google.generativeai as genai
+
+load_dotenv()
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise ValueError("No API key found. Please check your .env file.")
+
+genai.configure(api_key=api_key)
+model = genai.GenerativeModel('gemini-2.5-flash')
+
 
 app = FastAPI(title="Standup Summarizer API")
-
 templates = Jinja2Templates(directory="templates")
 
 class SummaryRequest(BaseModel):
@@ -17,12 +28,30 @@ class SummaryRequest(BaseModel):
 def home(request:Request):
     return templates.TemplateResponse(request=request,name="index.html")
 
-@app.post("/summary")
+@app.post("/summarize")
 
 def summarize_text(request: SummaryRequest):
-    mock_response = f"Received your text. You want a {request.length}% length summary formatted as {request.format_type}"
+    try:
+        system_instruction = f"You are an expert technical assistant. Summarize the following standup/meeting notes. "
+        system_instruction += f"Make the summary roughly {request.length}% of the original length. "
+        
+        if request.format_type == "points":
+                system_instruction += "Format the output as clean, professional bullet points."
+        elif request.format_type == "slides":
+            system_instruction += f"Format the output as a presentation with exactly {request.slide_count} slides. Separate each slide with '--- Slide X ---'."
+        else:
+            system_instruction += "Format the output in clear, readable paragraphs."
+        final_prompt = f"{system_instruction}\n\nHere are the notes to summarize:\n{request.text}"
+        
+        response = model.generate_content(final_prompt)
 
-    if request.format_type == "slides":
-        mock_response+= f"You asked for {request.slide_count} slides"
 
-    return {"summary":mock_response}
+        return {"summary":response.text}
+    
+    except Exception as e:
+        # If anything goes wrong (e.g., API is down, text is too long), tell the frontend safely
+        print(f"Error during summarization: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate summary.")
+         
+
+
