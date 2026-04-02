@@ -39,9 +39,16 @@ def summarize_text(request: SummaryRequest):
         if request.format_type == "points":
             system_instruction += f"Format the output as exactly {request.points_count} clean, professional bullet points using Markdown."        
         elif request.format_type == "slides":
-            system_instruction += f"Format the output as a presentation with exactly {request.slide_count} slides. Separate each slide with a Markdown horizontal rule (---) and use line breaks so it is easy to read."
+            system_instruction += (
+                f"Format the output as a presentation with exactly {request.slide_count} slides. "
+                f"Separate each slide with a Markdown horizontal rule (---) and use line breaks so it is easy to read. "
+                f"CRITICAL REQUIREMENT: Every single slide MUST contain a minimum of 50 words. "
+                f"If the provided notes lack sufficient detail to reach 50 words per slide, "
+                f"you must elaborate by adding relevant basic definitions, industry context, or logical improvisations "
+                f"based on the original topic to ensure the length requirement is met."
+            )
         else:
-            system_instruction += "Format the output in clear, readable paragraphs using Markdown."
+            system_instruction += f"Format the output in clear, readable paragraphs using Markdown. Strictly limit the total summary to around {request.length} words."
         
         final_prompt = f"{system_instruction}\n\nHere are the notes to summarize:\n{request.text}"
         
