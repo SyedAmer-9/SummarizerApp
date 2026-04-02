@@ -23,6 +23,7 @@ class SummaryRequest(BaseModel):
     length: int = 50
     format_type: str = "paragraph"
     slide_count: Optional[int] = 0
+    points_count: Optional[int] = 5
 
 @app.get("/")
 def home(request:Request):
@@ -32,19 +33,19 @@ def home(request:Request):
 
 def summarize_text(request: SummaryRequest):
     try:
-        system_instruction = f"You are an expert technical assistant. Summarize the following standup/meeting notes. "
-        system_instruction += f"Make the summary roughly {request.length}% of the original length. "
+        system_instruction = f"You are an expert technical assistant. Summarize the following standup notes. "
+        system_instruction += f"Strictly limit the total summary to around {request.length} words. "
         
         if request.format_type == "points":
-                system_instruction += "Format the output as clean, professional bullet points."
+            system_instruction += f"Format the output as exactly {request.points_count} clean, professional bullet points using Markdown."        
         elif request.format_type == "slides":
-            system_instruction += f"Format the output as a presentation with exactly {request.slide_count} slides. Separate each slide with '--- Slide X ---'."
+            system_instruction += f"Format the output as a presentation with exactly {request.slide_count} slides. Separate each slide with a Markdown horizontal rule (---) and use line breaks so it is easy to read."
         else:
-            system_instruction += "Format the output in clear, readable paragraphs."
+            system_instruction += "Format the output in clear, readable paragraphs using Markdown."
+        
         final_prompt = f"{system_instruction}\n\nHere are the notes to summarize:\n{request.text}"
         
         response = model.generate_content(final_prompt)
-
 
         return {"summary":response.text}
     
