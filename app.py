@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Request,HTTPException
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
@@ -13,9 +13,9 @@ if not api_key:
 
 client = genai.Client(api_key=api_key)
 
-
 app = FastAPI(title="Standup Summarizer API")
 templates = Jinja2Templates(directory="templates")
+
 
 class SummaryRequest(BaseModel):
     text: str
@@ -24,18 +24,34 @@ class SummaryRequest(BaseModel):
     slide_count: Optional[int] = 0
     points_count: Optional[int] = 5
 
-@app.get("/")
-def home(request:Request):
-    return templates.TemplateResponse(request=request,name="index.html")
 
-@app.post("/summarize")
+@app.get("/")
+def home(request: Request):
+    return templates.TemplateResponse(request=request, name="index.html")
+
+
+# ── NEW: Health check endpoint ──
+# The frontend calls GET /health every 30 seconds.
+# We do a lightweight Gemini API probe (count_tokens is free & fast).
+# Returns 200 if the API key is valid and reachable, 503 otherwise.
+@app.get("/health")
+def health_check():
+    try:
+        client.models.count_tokens(
+            model="gemini-2.5-flash",
+            contents="ping"
+        )
+        return {"status": "ok"}
+    except Exception as e:
+        print(f"Health check failed: {e}")
+        raise HTTPException(status_code=503, detail="Gemini API unreachable")
+
 
 @app.post("/summarize")
 def summarize_text(request: SummaryRequest):
     try:
-        # BUG FIX: Removed the duplicate "Strictly limit..." line from here
-        system_instruction = f"You are an expert technical assistant. Summarize the following standup notes. "
-        
+        system_instruction = "You are an expert technical assistant. Summarize the following standup notes. "
+
         if request.format_type == "points":
             system_instruction += f"Format the output as exactly {request.points_count} clean, professional bullet points using Markdown."
         elif request.format_type == "slides":
@@ -49,20 +65,16 @@ def summarize_text(request: SummaryRequest):
             )
         else:
             system_instruction += f"Format the output in clear, readable paragraphs using Markdown. Strictly limit the total summary to around {request.length} words."
-        
+
         final_prompt = f"{system_instruction}\n\nHere are the notes to summarize:\n{request.text}"
-        
+
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model="gemini-2.5-flash",
             contents=final_prompt
         )
 
-        return {"summary":response.text}
-    
+        return {"summary": response.text}
+
     except Exception as e:
-        # If anything goes wrong (e.g., API is down, text is too long), tell the frontend safely
         print(f"Error during summarization: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate summary.")
-         
-
-
