@@ -30,13 +30,14 @@ def home(request:Request):
 
 @app.post("/summarize")
 
+@app.post("/summarize")
 def summarize_text(request: SummaryRequest):
     try:
+        # BUG FIX: Removed the duplicate "Strictly limit..." line from here
         system_instruction = f"You are an expert technical assistant. Summarize the following standup notes. "
-        system_instruction += f"Strictly limit the total summary to around {request.length} words. "
         
         if request.format_type == "points":
-            system_instruction += f"Format the output as exactly {request.points_count} clean, professional bullet points using Markdown."        
+            system_instruction += f"Format the output as exactly {request.points_count} clean, professional bullet points using Markdown."
         elif request.format_type == "slides":
             system_instruction += (
                 f"Format the output as a presentation with exactly {request.slide_count} slides. "
