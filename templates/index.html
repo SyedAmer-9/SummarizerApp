@@ -29,11 +29,6 @@
 
     <textarea id="standup-text" placeholder="Paste your standup transcript or notes here..."></textarea>
 
-    <div class="control-group" id="length-group">
-        <label for="length-slider">Summary Length: <span id="length-display">30</span> words</label>
-        <input type="range" id="length-slider" min="20" max="300" step="10" value="30">
-    </div>
-
     <div class="control-group">
         <label for="format-select">Output Format:</label>
         <select id="format-select">
@@ -41,6 +36,11 @@
             <option value="points">Bullet Points</option>
             <option value="slides">Presentation Slides</option>
         </select>
+    </div>
+
+    <div class="control-group" id="length-group">
+        <label for="length-slider">Summary Length: <span id="length-display">30</span> words</label>
+        <input type="range" id="length-slider" min="20" max="300" step="10" value="30">
     </div>
 
     <div class="control-group hidden" id="points-count-group">
