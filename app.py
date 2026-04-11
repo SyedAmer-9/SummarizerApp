@@ -4,15 +4,14 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Optional
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
 
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
     raise ValueError("No API key found. Please check your .env file.")
 
-genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-2.5-flash')
+client = genai.Client(api_key=api_key)
 
 
 app = FastAPI(title="Standup Summarizer API")
@@ -52,7 +51,10 @@ def summarize_text(request: SummaryRequest):
         
         final_prompt = f"{system_instruction}\n\nHere are the notes to summarize:\n{request.text}"
         
-        response = model.generate_content(final_prompt)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=final_prompt
+        )
 
         return {"summary":response.text}
     
