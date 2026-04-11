@@ -3,368 +3,586 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StandupAI — Daily Sync Summarizer</title>
+    <title>StandupAI — RIG Intelligence</title>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Sora', 'sans-serif'],
-                        serif: ['Instrument Serif', 'serif'],
-                        mono: ['DM Mono', 'monospace'],
-                    },
+                    fontFamily: { sans:['Sora','sans-serif'], serif:['Instrument Serif','serif'], mono:['DM Mono','monospace'] },
                     colors: {
-                        surface: { DEFAULT: '#0f0f11', card: '#16161a', border: '#232329', hover: '#1e1e24' },
-                        accent: { DEFAULT: '#7c6af7', dim: '#3d3480', muted: '#2a2347', glow: 'rgba(124,106,247,0.15)' },
-                        ink: { DEFAULT: '#f0eff6', muted: '#8b8a98', dim: '#55545f' }
-                    },
-                    boxShadow: {
-                        card: '0 1px 0 0 rgba(255,255,255,0.04) inset, 0 0 0 1px #232329',
-                        glow: '0 4px 32px rgba(124,106,247,0.12)',
-                    },
-                    animation: {
-                        'fade-up': 'fadeUp 0.5s ease forwards',
-                        'pulse-dot': 'pulseDot 2s ease-in-out infinite',
-                        'spin': 'spin 1s linear infinite',
+                        surface:  { DEFAULT:'#0f0f11', card:'#16161a', border:'#232329' },
+                        accent:   { DEFAULT:'#7c6af7', muted:'#2a2347' },
+                        ink:      { DEFAULT:'#f0eff6', muted:'#8b8a98', dim:'#55545f' },
                     },
                     keyframes: {
-                        fadeUp: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        pulseDot: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.3' } },
-                        spin: { '100%': { transform: 'rotate(360deg)' } }
+                        fadeUp:   { '0%':{opacity:'0',transform:'translateY(8px)'}, '100%':{opacity:'1',transform:'translateY(0)'} },
+                        pulseDot: { '0%,100%':{opacity:'1'}, '50%':{opacity:'0.3'} },
+                        cursor:   { '0%,100%':{opacity:'1'}, '50%':{opacity:'0'} },
+                        shimmer:  { '0%':{backgroundPosition:'200% 0'}, '100%':{backgroundPosition:'-200% 0'} },
+                    },
+                    animation: {
+                        'fade-up':   'fadeUp 0.4s ease forwards',
+                        'pulse-dot': 'pulseDot 2s ease-in-out infinite',
+                        'cursor':    'cursor 1s step-end infinite',
+                        'shimmer':   'shimmer 2s linear infinite',
                     }
                 }
             }
         }
     </script>
     <style>
-        * { box-sizing: border-box; }
-        body { background-color: #0f0f11; color: #f0eff6; }
+        *{box-sizing:border-box}
+        body{background:#0f0f11;color:#f0eff6}
 
-        #standup-text {
-            background: #16161a; border: 1px solid #232329; color: #f0eff6;
-            font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.7;
-            resize: none; transition: border-color 0.2s, box-shadow 0.2s; outline: none; width: 100%;
+        textarea,select,.num-input{
+            background:#16161a;border:1px solid #232329;color:#f0eff6;
+            font-family:'DM Mono',monospace;font-size:13px;outline:none;
+            transition:border-color .2s,box-shadow .2s;
         }
-        #standup-text::placeholder { color: #55545f; }
-        #standup-text:focus { border-color: #7c6af7; box-shadow: 0 0 0 3px rgba(124,106,247,0.2); }
-
-        #format-select {
-            background: #16161a; border: 1px solid #232329; color: #f0eff6;
-            font-family: 'Sora', sans-serif; font-size: 13px; appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8a98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: right 12px center;
-            cursor: pointer; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+        textarea{resize:none;line-height:1.7;width:100%}
+        textarea::placeholder{color:#55545f}
+        textarea:focus,select:focus,.num-input:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,.2)}
+        select{
+            appearance:none;
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8a98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;font-family:'Sora',sans-serif;
         }
-        #format-select:focus { border-color: #7c6af7; box-shadow: 0 0 0 3px rgba(124,106,247,0.2); }
+        .num-input{width:64px;text-align:center;font-size:14px}
 
-        #length-slider { -webkit-appearance: none; appearance: none; background: #232329; height: 4px; border-radius: 2px; outline: none; width: 100%; }
-        #length-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #7c6af7; cursor: pointer; border: 2px solid #0f0f11; transition: box-shadow 0.2s; }
-        #length-slider::-webkit-slider-thumb:hover { box-shadow: 0 0 0 4px rgba(124,106,247,0.25); }
+        #length-slider{-webkit-appearance:none;appearance:none;background:#232329;height:4px;border-radius:2px;outline:none;width:100%}
+        #length-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#7c6af7;cursor:pointer;border:2px solid #0f0f11;transition:box-shadow .2s}
+        #length-slider::-webkit-slider-thumb:hover{box-shadow:0 0 0 4px rgba(124,106,247,.25)}
 
-        #slide-count, #points-count { background: #16161a; border: 1px solid #232329; color: #f0eff6; font-family: 'DM Mono', monospace; font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 80px; text-align: center; }
-        #slide-count:focus, #points-count:focus { border-color: #7c6af7; box-shadow: 0 0 0 3px rgba(124,106,247,0.2); }
+        /* Summary output */
+        #summary-result{font-family:'Sora',sans-serif;font-size:14px;line-height:1.85;color:#d4d3e0}
+        #summary-result h1,#summary-result h2,#summary-result h3{color:#f0eff6;font-weight:500;margin:1.1em 0 .4em}
+        #summary-result ul{padding-left:1.25em}
+        #summary-result li{margin-bottom:.35em}
+        #summary-result hr{border:none;border-top:1px solid #232329;margin:1.4em 0}
+        #summary-result strong{color:#f0eff6;font-weight:500}
+        #summary-result p{margin-bottom:.75em}
+        .streaming-cursor::after{content:'▋';animation:cursor 1s step-end infinite;color:#7c6af7;font-size:13px;margin-left:2px}
 
-        #summary-result { font-family: 'Sora', sans-serif; font-size: 14px; line-height: 1.8; color: #d4d3e0; }
-        #summary-result h1, #summary-result h2, #summary-result h3 { color: #f0eff6; font-weight: 500; margin: 1.2em 0 0.5em; }
-        #summary-result ul { padding-left: 1.25em; }
-        #summary-result li { margin-bottom: 0.4em; }
-        #summary-result hr { border: none; border-top: 1px solid #232329; margin: 1.5em 0; }
-        #summary-result strong { color: #f0eff6; font-weight: 500; }
-        #summary-result p { margin-bottom: 0.8em; }
+        /* Project badges */
+        .badge-onblick    {background:#0c2d3e;color:#0ea5e9;border-color:#0ea5e940}
+        .badge-reccopilot {background:#2d1a3e;color:#a855f7;border-color:#a855f740}
+        .badge-sales      {background:#0f2d23;color:#10b981;border-color:#10b98140}
+        .badge-rig        {background:#2d200f;color:#f59e0b;border-color:#f59e0b40}
+        .badge-hrbp       {background:#3e1a2d;color:#ec4899;border-color:#ec489940} 
+        .badge-general    {background:#1a1a1a;color:#6b7280;border-color:#6b728040}
 
-        .hidden { display: none !important; }
+        /* Stage progress bar */
+        .stage-bar{height:2px;background:#232329;border-radius:1px;overflow:hidden}
+        .stage-bar-fill{height:100%;background:#7c6af7;border-radius:1px;transition:width .5s ease}
 
-        body::before {
-            content: ''; position: fixed; inset: 0; pointer-events: none;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-            z-index: 0; opacity: 0.6;
+        /* Shimmer skeleton */
+        .shimmer-line{
+            height:12px;border-radius:4px;
+            background:linear-gradient(90deg,#232329 25%,#2d2d33 50%,#232329 75%);
+            background-size:400% 100%;
+            animation:shimmer 2s linear infinite;
         }
-        .glow-blob { position: fixed; width: 600px; height: 400px; border-radius: 50%; background: radial-gradient(ellipse, rgba(124,106,247,0.08) 0%, transparent 70%); top: -100px; right: -100px; pointer-events: none; z-index: 0; }
+
+        .hidden{display:none!important}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            z-index:0;opacity:.6}
+        .glow-blob{position:fixed;width:600px;height:400px;border-radius:50%;
+            background:radial-gradient(ellipse,rgba(124,106,247,.07) 0%,transparent 70%);
+            top:-100px;right:-100px;pointer-events:none;z-index:0}
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased">
+<div class="glow-blob"></div>
 
-    <div class="glow-blob"></div>
-
-    <!-- Top nav -->
-    <nav class="relative z-10 border-b border-surface-border">
-        <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <div class="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                    </svg>
-                </div>
-                <span class="font-semibold text-sm tracking-tight text-ink">StandupAI</span>
-                <span class="text-[10px] font-mono bg-accent-muted text-accent px-1.5 py-0.5 rounded uppercase tracking-wider">Beta</span>
-            </div>
-
-            <!-- ── API STATUS INDICATOR ── -->
-            <!-- States: checking (yellow), online (green), offline (red) -->
-            <div id="api-status" class="flex items-center gap-1.5 cursor-default" title="Gemini API status">
-                <div id="status-dot" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse-dot"></div>
-                <span id="status-label" class="text-xs text-ink-muted">Checking…</span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main layout -->
-    <div class="relative z-10 max-w-5xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
-
-        <!-- LEFT: Input panel -->
-        <div class="flex flex-col gap-5">
-            <div>
-                <h1 class="text-2xl font-semibold text-ink leading-tight">
-                    Standup <span class="font-serif italic text-accent">Summarizer</span>
-                </h1>
-                <p class="text-sm text-ink-muted mt-1">Paste your chaotic standup notes. Get a clean, structured summary in seconds.</p>
-            </div>
-
-            <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-3">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Raw notes</span>
-                    <div class="h-px flex-1 bg-surface-border"></div>
-                </div>
-                <textarea id="standup-text" rows="10" class="rounded-lg p-3"
-                    placeholder="// Paste your standup transcript or notes here...
-// e.g. 'Alice worked on auth bug, blocked by infra. Bob finished the API layer.'"></textarea>
-                <div class="flex items-center justify-between text-[11px] font-mono text-ink-dim">
-                    <span>← markdown supported</span>
-                    <span id="char-count">0 chars</span>
-                </div>
-            </div>
-
-            <button id="summarize-btn"
-                class="w-full h-11 rounded-xl bg-accent hover:bg-purple-500 text-white text-sm font-medium transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
-                style="box-shadow: 0 0 24px rgba(124,106,247,0.3);">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+<nav class="relative z-10 border-b border-surface-border">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+            <div class="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
                 </svg>
-                <span>Generate Summary</span>
-            </button>
+            </div>
+            <span class="font-semibold text-sm tracking-tight text-ink">StandupAI</span>
+            <span class="text-[10px] font-mono bg-accent-muted text-accent px-1.5 py-0.5 rounded uppercase tracking-wider">RIG</span>
+        </div>
+        <div id="api-status" class="flex items-center gap-1.5">
+            <div id="status-dot" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse-dot"></div>
+            <span id="status-label" class="text-xs text-ink-muted">Checking…</span>
+        </div>
+    </div>
+</nav>
+
+<div class="relative z-10 max-w-5xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-6">
+
+    <div class="flex flex-col gap-5">
+        <div>
+            <h1 class="text-2xl font-semibold text-ink leading-tight">
+                Standup <span class="font-serif italic text-accent">Summarizer</span>
+            </h1>
+            <p class="text-sm text-ink-muted mt-1">Paste your Teams transcript — names, action items, and blockers extracted automatically.</p>
         </div>
 
-        <!-- RIGHT: Config panel -->
-        <div class="flex flex-col gap-4">
-            <div class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-5">
-                <div class="flex items-center gap-2">
-                    <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Configuration</span>
-                    <div class="h-px flex-1 bg-surface-border"></div>
-                </div>
+        <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Teams transcript</span>
+                <div class="h-px flex-1 bg-surface-border"></div>
+            </div>
+            <textarea id="standup-text" rows="11" class="rounded-lg p-3"
+                placeholder="Paste your Microsoft Teams transcript here...
 
-                <div class="flex flex-col gap-2">
-                    <label class="text-xs font-medium text-ink-muted" for="format-select">Output Format</label>
-                    <div class="relative">
-                        <select id="format-select" class="rounded-lg px-3 py-2.5 pr-8">
-                            <option value="paragraphs">Paragraphs</option>
-                            <option value="points">Bullet Points</option>
-                            <option value="slides">Presentation Slides</option>
-                        </select>
-                    </div>
-                </div>
+"></textarea>
+            <div class="flex items-center justify-between text-[11px] font-mono text-ink-dim">
+               
+                <span id="char-count">0 chars</span>
+            </div>
+        </div>
 
-                <div class="flex gap-2" id="format-pills">
-                    <button onclick="setPill('paragraphs')" data-val="paragraphs" class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">¶ Para</button>
-                    <button onclick="setPill('points')" data-val="points" class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">• Bullets</button>
-                    <button onclick="setPill('slides')" data-val="slides" class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">⊡ Slides</button>
-                </div>
+        <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-3">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Project Assignment</span>
+                <div class="h-px flex-1 bg-surface-border"></div>
+            </div>
+            <div class="flex-1 flex flex-col gap-1.5">
+                <label class="text-xs text-ink-muted" for="project-select">Select Project Database (Required)</label>
+                <select id="project-select" class="rounded-lg px-3 py-2 text-sm w-full border border-surface-border bg-[#16161a] text-ink outline-none focus:border-accent">
+                    <option value="" disabled selected>Choose a project...</option>
+                    <option value="onblick">Onblick</option>
+                    <option value="reccopilot">Reccopilot</option>
+                    <option value="sales">Sales</option>
+                    <option value="hrbp">HRBP</option>
+                    <option value="rig">RIG</option>
+                    <option value="general">General</option>
+                </select>
+            </div>
+        </div>
 
-                <div id="length-group" class="flex flex-col gap-3">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-medium text-ink-muted" for="length-slider">Summary Length</label>
-                        <span class="text-xs font-mono bg-accent-muted text-accent px-2 py-0.5 rounded">
-                            <span id="length-display">30</span> words
-                        </span>
-                    </div>
-                    <input type="range" id="length-slider" min="20" max="300" step="10" value="30">
-                    <div class="flex justify-between text-[10px] font-mono text-ink-dim">
-                        <span>Brief (20)</span><span>Detailed (300)</span>
-                    </div>
-                </div>
+        <button id="summarize-btn"
+            class="w-full h-11 rounded-xl bg-accent hover:bg-purple-500 text-white text-sm font-medium transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
+            style="box-shadow:0 0 24px rgba(124,106,247,.3)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            <span>Generate Summary</span>
+        </button>
+    </div>
 
-                <div id="points-count-group" class="hidden flex-col gap-2">
-                    <label class="text-xs font-medium text-ink-muted" for="points-count">Number of Bullet Points</label>
-                    <div class="flex items-center gap-3">
-                        <button onclick="adj('points-count',-1)" class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors text-sm">−</button>
-                        <input type="number" id="points-count" min="1" max="30" value="5" class="rounded-lg py-2">
-                        <button onclick="adj('points-count',1)" class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors text-sm">+</button>
-                    </div>
-                </div>
+    <div class="flex flex-col gap-4">
+        <div class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-5">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Configuration</span>
+                <div class="h-px flex-1 bg-surface-border"></div>
+            </div>
 
-                <div id="slide-count-group" class="hidden flex-col gap-2">
-                    <label class="text-xs font-medium text-ink-muted" for="slide-count">Number of Slides</label>
-                    <div class="flex items-center gap-3">
-                        <button onclick="adj('slide-count',-1)" class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors text-sm">−</button>
-                        <input type="number" id="slide-count" min="1" max="20" value="3" class="rounded-lg py-2">
-                        <button onclick="adj('slide-count',1)" class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors text-sm">+</button>
-                    </div>
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-medium text-ink-muted" for="format-select">Output Format</label>
+                <select id="format-select" class="rounded-lg px-3 py-2.5 pr-8">
+                    <option value="paragraphs">Paragraphs</option>
+                    <option value="points">Bullet Points</option>
+                    <option value="slides">Presentation Slides</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2">
+                <button data-val="paragraphs" class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">¶ Para</button>
+                <button data-val="points"     class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">• Bullets</button>
+                <button data-val="slides"     class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">⊡ Slides</button>
+            </div>
+
+            <div id="length-group" class="flex flex-col gap-3">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-medium text-ink-muted">Word Limit</label>
+                    <span class="text-xs font-mono bg-accent-muted text-accent px-2 py-0.5 rounded">
+                        max <span id="length-display">30</span> words
+                    </span>
+                </div>
+                <input type="range" id="length-slider" min="20" max="300" step="10" value="30">
+                <div class="flex justify-between text-[10px] font-mono text-ink-dim"><span>20 words</span><span>300 words</span></div>
+            </div>
+
+            <div id="points-count-group" class="hidden flex-col gap-2">
+                <label class="text-xs font-medium text-ink-muted">Bullet Points</label>
+                <div class="flex items-center gap-3">
+                    <button onclick="adj('points-count',-1)" class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors">−</button>
+                    <input type="number" id="points-count" min="1" max="30" value="5" class="num-input rounded-lg py-2">
+                    <button onclick="adj('points-count',1)"  class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors">+</button>
                 </div>
             </div>
 
-            <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-2.5">
-                <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Tips</span>
-                <ul class="text-xs text-ink-muted space-y-1.5">
-                    <li class="flex gap-2"><span class="text-accent mt-0.5">›</span> Works best with 3–20 minutes of notes</li>
-                    <li class="flex gap-2"><span class="text-accent mt-0.5">›</span> Include names for per-person breakdowns</li>
-                    <li class="flex gap-2"><span class="text-accent mt-0.5">›</span> Mention blockers to surface them prominently</li>
-                </ul>
+            <div id="slide-count-group" class="hidden flex-col gap-2">
+                <label class="text-xs font-medium text-ink-muted">Slides</label>
+                <div class="flex items-center gap-3">
+                    <button onclick="adj('slide-count',-1)" class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors">−</button>
+                    <input type="number" id="slide-count" min="1" max="20" value="3" class="num-input rounded-lg py-2">
+                    <button onclick="adj('slide-count',1)"  class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors">+</button>
+                </div>
             </div>
+        </div>
+
+        <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-2.5">
+            <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">How it works</span>
+            <ul class="text-xs text-ink-muted space-y-2">
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">①</span> Teams noise is stripped automatically</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">②</span> Speaker names extracted by AI</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">③</span> Summary grouped by person, within your word limit</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">④</span> Saved to project memory automatically</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="output-container" class="hidden relative z-10 max-w-5xl mx-auto px-6 pb-16 flex flex-col gap-4">
+
+    <div id="progress-card" class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+            <span class="text-xs font-mono text-ink-muted uppercase tracking-widest">Processing</span>
+            <span id="stage-label" class="text-xs font-mono text-accent">Starting…</span>
+        </div>
+        <div class="stage-bar">
+            <div id="stage-bar-fill" class="stage-bar-fill" style="width:0%"></div>
+        </div>
+        <div id="skeleton" class="flex flex-col gap-2.5 mt-1">
+            <div class="shimmer-line w-full"></div>
+            <div class="shimmer-line w-4/5"></div>
+            <div class="shimmer-line w-3/5"></div>
         </div>
     </div>
 
-    <!-- Output section -->
-    <div id="output-container" class="relative z-10 hidden max-w-5xl mx-auto px-6 pb-16">
-        <div class="rounded-xl border border-surface-border bg-surface-card p-6 animate-fade-up">
-            <div class="flex items-center justify-between mb-5">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 rounded-full bg-emerald-400"></div>
-                    <span class="text-xs font-mono text-ink-muted uppercase tracking-widest">Summary</span>
-                </div>
-                <button onclick="copyResult()" id="copy-btn" class="text-xs font-mono text-ink-dim hover:text-accent transition-colors flex items-center gap-1.5 border border-surface-border rounded-lg px-3 py-1.5">
+    <div id="summary-card" class="hidden rounded-xl border border-surface-border bg-surface-card p-6 animate-fade-up">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div id="output-dot" class="w-2 h-2 rounded-full bg-accent animate-pulse-dot"></div>
+                <span class="text-xs font-mono text-ink-muted uppercase tracking-widest">Summary</span>
+                <span id="output-project-badge" class="hidden text-[10px] font-mono px-2 py-0.5 rounded border"></span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="word-count-badge" class="hidden text-[10px] font-mono text-ink-dim px-2 py-0.5 rounded border border-surface-border"></span>
+                <button id="copy-btn" onclick="copyResult()"
+                    class="text-xs font-mono text-ink-dim hover:text-accent transition-colors flex items-center gap-1.5 border border-surface-border rounded-lg px-3 py-1.5">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                     </svg>
                     Copy
                 </button>
             </div>
-            <div id="summary-result"></div>
+        </div>
+        <div id="members-row" class="hidden flex-wrap gap-2 mb-4" style="display:none"></div>
+        <div id="summary-result" class="streaming-cursor"></div>
+    </div>
+
+    <div id="ai-card" class="hidden rounded-xl border border-surface-border bg-surface-card p-6 animate-fade-up">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-5 h-5 rounded-md bg-emerald-500/10 flex items-center justify-center">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest">Action Items</span>
+                </div>
+                <ul id="action-items-list" class="space-y-2 text-sm text-ink-muted"></ul>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 mb-3">
+                    <div class="w-5 h-5 rounded-md bg-red-500/10 flex items-center justify-center">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </div>
+                    <span class="text-xs font-mono text-red-400 uppercase tracking-widest">Blockers</span>
+                </div>
+                <ul id="blockers-list" class="space-y-2 text-sm text-ink-muted"></ul>
+            </div>
         </div>
     </div>
 
-    <script>
-        /* ── Helpers ── */
-        function adj(id, delta) {
-            const el = document.getElementById(id);
-            el.value = Math.max(el.min, Math.min(el.max, parseInt(el.value) + delta));
-        }
+    <div id="saved-notice" class="hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-surface-border bg-surface-card text-xs text-ink-muted font-mono">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+        </svg>
+        <span id="saved-notice-text"></span>
+    </div>
+</div>
 
-        function copyResult() {
-            navigator.clipboard.writeText(document.getElementById('summary-result').innerText).then(() => {
-                const btn = document.getElementById('copy-btn');
-                btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-                btn.classList.add('text-emerald-400');
-                setTimeout(() => {
-                    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
-                    btn.classList.remove('text-emerald-400');
-                }, 2000);
-            });
-        }
+<script>
+// ── Helpers ────────────────────────────────────────────────────────────────
+function adj(id, d) {
+    const el = document.getElementById(id);
+    el.value = Math.max(+el.min, Math.min(+el.max, +el.value + d));
+}
 
-        /* ── Char counter ── */
-        document.getElementById('standup-text').addEventListener('input', function () {
-            document.getElementById('char-count').textContent = this.value.length + ' chars';
+function copyResult() {
+    navigator.clipboard.writeText(document.getElementById('summary-result').innerText).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+        btn.classList.add('text-emerald-400');
+        setTimeout(() => {
+            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
+            btn.classList.remove('text-emerald-400');
+        }, 2000);
+    });
+}
+
+const PROJECT_LABELS = { onblick:'Onblick', reccopilot:'Reccopilot', sales:'Sales', rig:'RIG', hrbp:'HRBP',general:'General' };
+const PROJECTS = ['onblick','reccopilot','sales','rig','hrbp'];
+
+function applyProjectBadge(el, project) {
+    el.textContent = '● ' + (PROJECT_LABELS[project] || project);
+    el.className = el.className.replace(/badge-\w+/g, '');
+    el.classList.add(`badge-${project}`, 'text-[10px]', 'font-mono', 'px-2', 'py-0.5', 'rounded', 'border');
+    el.classList.remove('hidden');
+}
+
+function setStage(label, pct) {
+    document.getElementById('stage-label').textContent = label;
+    document.getElementById('stage-bar-fill').style.width = pct + '%';
+}
+
+// ── API status ─────────────────────────────────────────────────────────────
+async function checkStatus() {
+    const dot = document.getElementById('status-dot');
+    const lbl = document.getElementById('status-label');
+    try {
+        const r = await fetch('/health', { signal: AbortSignal.timeout(4000) });
+        if (r.ok) { dot.className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot'; lbl.textContent='API online'; }
+        else throw 0;
+    } catch { dot.className='w-2 h-2 rounded-full bg-red-500'; lbl.textContent='API offline'; }
+}
+checkStatus();
+setInterval(checkStatus, 30000);
+
+// ── Char counter ───────────────────────────────────────────────────────────
+const textarea = document.getElementById('standup-text');
+textarea.addEventListener('input', function() {
+    document.getElementById('char-count').textContent = this.value.length + ' chars';
+});
+
+// ── Format switcher ────────────────────────────────────────────────────────
+const formatSelect = document.getElementById('format-select');
+
+document.querySelectorAll('.format-pill').forEach(btn => {
+    btn.addEventListener('click', () => { formatSelect.value = btn.dataset.val; formatSelect.dispatchEvent(new Event('change')); });
+});
+
+function updatePills(val) {
+    document.querySelectorAll('.format-pill').forEach(p => {
+        const on = p.dataset.val === val;
+        p.classList.toggle('border-accent', on);
+        p.classList.toggle('text-accent', on);
+        p.classList.toggle('border-surface-border', !on);
+        p.classList.toggle('text-ink-muted', !on);
+    });
+}
+
+formatSelect.addEventListener('change', function() {
+    ['slide-count-group','points-count-group','length-group'].forEach(id => {
+        const el = document.getElementById(id); el.classList.add('hidden'); el.style.display='';
+    });
+    if      (this.value === 'slides') { const g=document.getElementById('slide-count-group');  g.classList.remove('hidden'); g.style.display='flex'; }
+    else if (this.value === 'points') { const g=document.getElementById('points-count-group'); g.classList.remove('hidden'); g.style.display='flex'; }
+    else                              { document.getElementById('length-group').classList.remove('hidden'); }
+    updatePills(this.value);
+});
+updatePills('paragraphs');
+
+document.getElementById('length-slider').addEventListener('input', function() {
+    document.getElementById('length-display').textContent = this.value;
+});
+
+// ── Submit ─────────────────────────────────────────────────────────────────
+const genBtn     = document.getElementById('summarize-btn');
+const outWrap    = document.getElementById('output-container');
+const progressCard = document.getElementById('progress-card');
+const summaryCard  = document.getElementById('summary-card');
+const summaryDiv   = document.getElementById('summary-result');
+const aiCard       = document.getElementById('ai-card');
+const savedNote    = document.getElementById('saved-notice');
+
+genBtn.addEventListener('click', async () => {
+    const text = textarea.value.trim();
+    const projectSelect = document.getElementById('project-select').value;
+
+    if (!text) {
+        textarea.style.borderColor = '#e24b4a';
+        setTimeout(() => textarea.style.borderColor = '', 1500);
+        return;
+    }
+
+    // NEW: Enforce manual project selection
+    if (!projectSelect) {
+        alert("Please select a Project Database before generating.");
+        return;
+    }
+
+    // Reset all output
+    summaryDiv.innerHTML = '';
+    summaryDiv.classList.add('streaming-cursor');
+    document.getElementById('members-row').innerHTML = '';
+    document.getElementById('members-row').style.display = 'none';
+    document.getElementById('action-items-list').innerHTML = '';
+    document.getElementById('blockers-list').innerHTML = '';
+    document.getElementById('word-count-badge').classList.add('hidden');
+    document.getElementById('output-project-badge').classList.add('hidden');
+    aiCard.classList.add('hidden');
+    savedNote.classList.add('hidden');
+    summaryCard.classList.add('hidden');
+    progressCard.classList.remove('hidden');
+    setStage('Stripping Teams noise…', 10);
+
+    outWrap.style.display = 'flex';
+    outWrap.classList.remove('hidden');
+    outWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    genBtn.disabled = true;
+    genBtn.innerHTML = `<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Processing…</span>`;
+
+    const body = {
+        text,
+        length:           parseInt(document.getElementById('length-slider').value),
+        format_type:      formatSelect.value,
+        slide_count:      parseInt(document.getElementById('slide-count').value),
+        points_count:     parseInt(document.getElementById('points-count').value),
+        project:          projectSelect, // Sending the manual selection
+    };
+
+    let rawMarkdown = '';
+    let firstToken  = true;
+
+    try {
+        const res = await fetch('/summarize', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
         });
+        if (!res.ok) throw new Error('Server error ' + res.status);
 
-        /* ── Slider ── */
-        document.getElementById('length-slider').addEventListener('input', function () {
-            document.getElementById('length-display').textContent = this.value;
-        });
+        const reader  = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
 
-        /* ── Format switcher ── */
-        const formatSelect = document.getElementById('format-select');
+        while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
 
-        function setPill(val) {
-            formatSelect.value = val;
-            formatSelect.dispatchEvent(new Event('change'));
-        }
+            const events = buffer.split('\n\n');
+            buffer = events.pop();
 
-        function updatePills(val) {
-            document.querySelectorAll('.format-pill').forEach(p => {
-                const active = p.dataset.val === val;
-                p.classList.toggle('border-accent', active);
-                p.classList.toggle('text-accent', active);
-                p.classList.toggle('border-surface-border', !active);
-                p.classList.toggle('text-ink-muted', !active);
-            });
-        }
-
-        formatSelect.addEventListener('change', function () {
-            ['slide-count-group', 'points-count-group', 'length-group'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-                document.getElementById(id).style.display = '';
-            });
-            if (this.value === 'slides') { const g = document.getElementById('slide-count-group'); g.classList.remove('hidden'); g.style.display = 'flex'; }
-            else if (this.value === 'points') { const g = document.getElementById('points-count-group'); g.classList.remove('hidden'); g.style.display = 'flex'; }
-            else { document.getElementById('length-group').classList.remove('hidden'); }
-            updatePills(this.value);
-        });
-
-        updatePills('paragraphs');
-
-        /* ── API STATUS CHECK ──
-           Calls GET /health on your FastAPI server.
-           You need to add a /health endpoint to app.py (see instructions below).
-           States: checking → yellow pulse | online → green pulse | offline → red static
-        */
-        async function checkApiStatus() {
-            const dot = document.getElementById('status-dot');
-            const label = document.getElementById('status-label');
-            try {
-                const res = await fetch('/health', { method: 'GET', signal: AbortSignal.timeout(4000) });
-                if (res.ok) {
-                    dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot';
-                    label.textContent = 'API online';
-                } else {
-                    throw new Error('non-ok');
+            for (const block of events) {
+                if (!block.trim()) continue;
+                const lines = block.split('\n');
+                let eventType = 'message', dataStr = '';
+                for (const line of lines) {
+                    if (line.startsWith('event: '))     eventType = line.slice(7).trim();
+                    else if (line.startsWith('data: ')) dataStr   = line.slice(6).trim();
                 }
-            } catch {
-                dot.className = 'w-2 h-2 rounded-full bg-red-500';
-                label.textContent = 'API offline';
+                if (!dataStr) continue;
+                let payload;
+                try { payload = JSON.parse(dataStr); } catch { continue; }
+                
+                // ── Catch Stream Errors ───────────────────────────────────
+                if (eventType === 'error') {
+                    throw new Error(payload.error || "The AI stream crashed.");
+                }
+
+                // ── Stage events ──────────────────────────────────────────
+               
+                if (eventType === 'message' && payload.stage === 'cleaning') {
+                    setStage('Stripping Teams noise…', 20);
+                }
+                else if (eventType === 'message' && payload.stage === 'names') {
+                    setStage('Identified speakers…', 40);
+                }
+
+                // ── Summary tokens ────────────────────────────────────────
+                else if (eventType === 'message' && payload.token !== undefined && payload.token !== null) {
+                    if (firstToken) {
+                        // Switch from progress card to summary card
+                        progressCard.classList.add('hidden');
+                        summaryCard.classList.remove('hidden');
+                        firstToken = false;
+                    }
+                    rawMarkdown += payload.token;
+                    summaryDiv.innerHTML = marked.parse(rawMarkdown);
+                }
+
+                // ── Word-limit correction (backend trimmed the text) ──────
+                else if (eventType === 'message' && payload.corrected_summary !== undefined) {
+                    rawMarkdown = payload.corrected_summary;
+                    summaryDiv.innerHTML = marked.parse(rawMarkdown);
+                    // Show live word count
+                    const wc = rawMarkdown.trim().split(/\s+/).length;
+                    const badge = document.getElementById('word-count-badge');
+                    badge.textContent = wc + ' words';
+                    badge.classList.remove('hidden');
+                }
+
+                // ── Action items ──────────────────────────────────────────
+                else if (eventType === 'action_items') {
+                    const aiList = document.getElementById('action-items-list');
+                    const blList = document.getElementById('blockers-list');
+                    (payload.action_items || []).forEach(item =>
+                        aiList.insertAdjacentHTML('beforeend',
+                            `<li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5 shrink-0">›</span><span>${item}</span></li>`));
+                    if (!payload.action_items?.length)
+                        aiList.innerHTML = '<li class="text-ink-dim italic text-xs">None detected</li>';
+
+                    (payload.blockers || []).forEach(b =>
+                        blList.insertAdjacentHTML('beforeend',
+                            `<li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5 shrink-0">›</span><span>${b}</span></li>`));
+                    if (!payload.blockers?.length)
+                        blList.innerHTML = '<li class="text-ink-dim italic text-xs">None detected</li>';
+
+                    aiCard.classList.remove('hidden');
+                }
+
+                // ── Metadata ──────────────────────────────────────────────
+                else if (eventType === 'meta') {
+                    // Names as pills
+                    const row = document.getElementById('members-row');
+                    if (payload.names?.length) {
+                        payload.names.forEach(n =>
+                            row.insertAdjacentHTML('beforeend',
+                                `<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-accent-muted text-accent border border-accent/20">${n}</span>`));
+                        row.style.display = 'flex';
+                    }
+                    if (payload.project)
+                        applyProjectBadge(document.getElementById('output-project-badge'), payload.project);
+                    if (payload.record_id) {
+                        document.getElementById('saved-notice-text').textContent =
+                            `Saved to ${payload.project}.db · record #${payload.record_id}`;
+                        savedNote.classList.remove('hidden');
+                    }
+                }
+
+                // ── Done ──────────────────────────────────────────────────
+                else if (eventType === 'done') {
+                    summaryDiv.classList.remove('streaming-cursor');
+                    const dot = document.getElementById('output-dot');
+                    dot.classList.remove('animate-pulse-dot','bg-accent');
+                    dot.classList.add('bg-emerald-400');
+                    progressCard.classList.add('hidden');
+
+                    // Final word count if not already shown
+                    if (rawMarkdown && body.format_type === 'paragraphs') {
+                        const wc = rawMarkdown.trim().split(/\s+/).length;
+                        const badge = document.getElementById('word-count-badge');
+                        badge.textContent = wc + ' words';
+                        badge.classList.remove('hidden');
+                    }
+                }
             }
         }
 
-        checkApiStatus();
-        setInterval(checkApiStatus, 30000); // re-check every 30 seconds
-
-        /* ── Submit ── */
-        const summarizeBtn = document.getElementById('summarize-btn');
-        const outputContainer = document.getElementById('output-container');
-        const summaryResult = document.getElementById('summary-result');
-        const textarea = document.getElementById('standup-text');
-
-        summarizeBtn.addEventListener('click', async function () {
-            const textData = textarea.value;
-            const lengthData = parseInt(document.getElementById('length-slider').value);
-            const formatData = formatSelect.value;
-            const slideCountData = parseInt(document.getElementById('slide-count').value);
-            const pointsCountData = parseInt(document.getElementById('points-count').value);
-
-            if (!textData.trim()) {
-                textarea.style.borderColor = '#e24b4a';
-                setTimeout(() => textarea.style.borderColor = '', 1500);
-                return;
-            }
-
-            summarizeBtn.disabled = true;
-            summarizeBtn.innerHTML = `<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Summarizing…</span>`;
-
-            try {
-                const response = await fetch('/summarize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: textData, length: lengthData, format_type: formatData, slide_count: slideCountData, points_count: pointsCountData })
-                });
-
-                const result = await response.json();
-                summaryResult.innerHTML = marked.parse(result.summary);
-                outputContainer.style.display = 'block';
-                outputContainer.classList.remove('hidden');
-                outputContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            } catch (error) {
-                summaryResult.textContent = "Could not connect to the server. Check that your backend is running.";
-                outputContainer.style.display = 'block';
-                outputContainer.classList.remove('hidden');
-            } finally {
-                summarizeBtn.disabled = false;
-                summarizeBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>Generate Summary</span>`;
-            }
-        });
-    </script>
+    } catch (err) {
+        progressCard.classList.add('hidden');
+        summaryCard.classList.remove('hidden');
+        summaryDiv.innerHTML = `<p class="text-red-400 font-mono text-sm">Error: ${err.message}</p>`;
+        summaryDiv.classList.remove('streaming-cursor');
+    } finally {
+        genBtn.disabled = false;
+        genBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>Generate Summary</span>`;
+    }
+});
+</script>
 </body>
 </html>
