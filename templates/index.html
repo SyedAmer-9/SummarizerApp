@@ -56,7 +56,6 @@
         #length-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#7c6af7;cursor:pointer;border:2px solid #0f0f11;transition:box-shadow .2s}
         #length-slider::-webkit-slider-thumb:hover{box-shadow:0 0 0 4px rgba(124,106,247,.25)}
 
-        /* Summary output */
         #summary-result{font-family:'Sora',sans-serif;font-size:14px;line-height:1.85;color:#d4d3e0}
         #summary-result h1,#summary-result h2,#summary-result h3{color:#f0eff6;font-weight:500;margin:1.1em 0 .4em}
         #summary-result ul{padding-left:1.25em}
@@ -66,19 +65,16 @@
         #summary-result p{margin-bottom:.75em}
         .streaming-cursor::after{content:'▋';animation:cursor 1s step-end infinite;color:#7c6af7;font-size:13px;margin-left:2px}
 
-        /* Project badges */
         .badge-onblick    {background:#0c2d3e;color:#0ea5e9;border-color:#0ea5e940}
         .badge-reccopilot {background:#2d1a3e;color:#a855f7;border-color:#a855f740}
         .badge-sales      {background:#0f2d23;color:#10b981;border-color:#10b98140}
         .badge-rig        {background:#2d200f;color:#f59e0b;border-color:#f59e0b40}
-        .badge-hrbp       {background:#3e1a2d;color:#ec4899;border-color:#ec489940} 
+        .badge-hrbp       {background:#3e1a2d;color:#ec4899;border-color:#ec489940}
         .badge-general    {background:#1a1a1a;color:#6b7280;border-color:#6b728040}
 
-        /* Stage progress bar */
         .stage-bar{height:2px;background:#232329;border-radius:1px;overflow:hidden}
         .stage-bar-fill{height:100%;background:#7c6af7;border-radius:1px;transition:width .5s ease}
 
-        /* Shimmer skeleton */
         .shimmer-line{
             height:12px;border-radius:4px;
             background:linear-gradient(90deg,#232329 25%,#2d2d33 50%,#232329 75%);
@@ -98,6 +94,7 @@
 <body class="min-h-screen font-sans antialiased">
 <div class="glow-blob"></div>
 
+<!-- Navbar -->
 <nav class="relative z-10 border-b border-surface-border">
     <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
         <div class="flex items-center gap-2.5">
@@ -116,8 +113,10 @@
     </div>
 </nav>
 
+<!-- Main grid -->
 <div class="relative z-10 max-w-5xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-6">
 
+    <!-- LEFT -->
     <div class="flex flex-col gap-5">
         <div>
             <h1 class="text-2xl font-semibold text-ink leading-tight">
@@ -126,30 +125,30 @@
             <p class="text-sm text-ink-muted mt-1">Paste your Teams transcript — names, action items, and blockers extracted automatically.</p>
         </div>
 
+        <!-- Transcript input -->
         <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Teams transcript</span>
                 <div class="h-px flex-1 bg-surface-border"></div>
             </div>
             <textarea id="standup-text" rows="11" class="rounded-lg p-3"
-                placeholder="Paste your Microsoft Teams transcript here...
-
-"></textarea>
+                placeholder="Paste your Microsoft Teams transcript here..."></textarea>
             <div class="flex items-center justify-between text-[11px] font-mono text-ink-dim">
-               
+                <span>← supports inline, multi-line, and timestamped formats</span>
                 <span id="char-count">0 chars</span>
             </div>
         </div>
 
+        <!-- Project selection -->
         <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Project Assignment</span>
                 <div class="h-px flex-1 bg-surface-border"></div>
             </div>
-            <div class="flex-1 flex flex-col gap-1.5">
-                <label class="text-xs text-ink-muted" for="project-select">Select Project Database (Required)</label>
-                <select id="project-select" class="rounded-lg px-3 py-2 text-sm w-full border border-surface-border bg-[#16161a] text-ink outline-none focus:border-accent">
-                    <option value="" disabled selected>Choose a project...</option>
+            <div class="flex flex-col gap-1.5">
+                <label class="text-xs text-ink-muted" for="project-select">Select Project Database <span class="text-red-400">*</span></label>
+                <select id="project-select" class="rounded-lg px-3 py-2 text-sm w-full border border-surface-border bg-surface-card text-ink outline-none focus:border-accent">
+                    <option value="" disabled selected>Choose a project…</option>
                     <option value="onblick">Onblick</option>
                     <option value="reccopilot">Reccopilot</option>
                     <option value="sales">Sales</option>
@@ -160,6 +159,7 @@
             </div>
         </div>
 
+        <!-- Generate -->
         <button id="summarize-btn"
             class="w-full h-11 rounded-xl bg-accent hover:bg-purple-500 text-white text-sm font-medium transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
             style="box-shadow:0 0 24px rgba(124,106,247,.3)">
@@ -170,6 +170,7 @@
         </button>
     </div>
 
+    <!-- RIGHT: config -->
     <div class="flex flex-col gap-4">
         <div class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-5">
             <div class="flex items-center gap-2">
@@ -196,7 +197,7 @@
                 <div class="flex items-center justify-between">
                     <label class="text-xs font-medium text-ink-muted">Word Limit</label>
                     <span class="text-xs font-mono bg-accent-muted text-accent px-2 py-0.5 rounded">
-                        max <span id="length-display">30</span> words
+                    max <span id="length-display">30</span> words
                     </span>
                 </div>
                 <input type="range" id="length-slider" min="20" max="300" step="10" value="30">
@@ -222,20 +223,23 @@
             </div>
         </div>
 
+        <!-- How it works -->
         <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-2.5">
             <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">How it works</span>
             <ul class="text-xs text-ink-muted space-y-2">
-                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">①</span> Teams noise is stripped automatically</li>
-                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">②</span> Speaker names extracted by AI</li>
-                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">③</span> Summary grouped by person, within your word limit</li>
-                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">④</span> Saved to project memory automatically</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">①</span> Teams noise stripped instantly (no API call)</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">②</span> Speaker names extracted from transcript structure</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">③</span> Summary grouped by person, hard word limit enforced</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">④</span> Saved to selected project database</li>
             </ul>
         </div>
     </div>
 </div>
 
+<!-- Output section -->
 <div id="output-container" class="hidden relative z-10 max-w-5xl mx-auto px-6 pb-16 flex flex-col gap-4">
 
+    <!-- Progress card -->
     <div id="progress-card" class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-4">
         <div class="flex items-center justify-between">
             <span class="text-xs font-mono text-ink-muted uppercase tracking-widest">Processing</span>
@@ -244,6 +248,8 @@
         <div class="stage-bar">
             <div id="stage-bar-fill" class="stage-bar-fill" style="width:0%"></div>
         </div>
+        <!-- FIX: Names detected here immediately, before summary starts -->
+        <div id="progress-names" class="hidden flex-wrap gap-2"></div>
         <div id="skeleton" class="flex flex-col gap-2.5 mt-1">
             <div class="shimmer-line w-full"></div>
             <div class="shimmer-line w-4/5"></div>
@@ -251,6 +257,7 @@
         </div>
     </div>
 
+    <!-- Summary card -->
     <div id="summary-card" class="hidden rounded-xl border border-surface-border bg-surface-card p-6 animate-fade-up">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -269,10 +276,12 @@
                 </button>
             </div>
         </div>
-        <div id="members-row" class="hidden flex-wrap gap-2 mb-4" style="display:none"></div>
+        <!-- Member pills (also shown here after summary card appears) -->
+        <div id="members-row" class="hidden flex-wrap gap-2 mb-4"></div>
         <div id="summary-result" class="streaming-cursor"></div>
     </div>
 
+    <!-- Action items + blockers -->
     <div id="ai-card" class="hidden rounded-xl border border-surface-border bg-surface-card p-6 animate-fade-up">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
@@ -296,6 +305,7 @@
         </div>
     </div>
 
+    <!-- Saved notice -->
     <div id="saved-notice" class="hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-surface-border bg-surface-card text-xs text-ink-muted font-mono">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -324,8 +334,7 @@ function copyResult() {
     });
 }
 
-const PROJECT_LABELS = { onblick:'Onblick', reccopilot:'Reccopilot', sales:'Sales', rig:'RIG', hrbp:'HRBP',general:'General' };
-const PROJECTS = ['onblick','reccopilot','sales','rig','hrbp'];
+const PROJECT_LABELS = { onblick:'Onblick', reccopilot:'Reccopilot', sales:'Sales', rig:'RIG', hrbp:'HRBP', general:'General' };
 
 function applyProjectBadge(el, project) {
     el.textContent = '● ' + (PROJECT_LABELS[project] || project);
@@ -337,6 +346,18 @@ function applyProjectBadge(el, project) {
 function setStage(label, pct) {
     document.getElementById('stage-label').textContent = label;
     document.getElementById('stage-bar-fill').style.width = pct + '%';
+}
+
+// Render name pills into a target container element
+function renderNamePills(container, names) {
+    container.innerHTML = '';
+    if (!names || !names.length) return;
+    names.forEach(n => {
+        container.insertAdjacentHTML('beforeend',
+            `<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-accent-muted text-accent border border-accent/20">${n}</span>`);
+    });
+    container.style.display = 'flex';
+    container.classList.remove('hidden');
 }
 
 // ── API status ─────────────────────────────────────────────────────────────
@@ -353,8 +374,7 @@ checkStatus();
 setInterval(checkStatus, 30000);
 
 // ── Char counter ───────────────────────────────────────────────────────────
-const textarea = document.getElementById('standup-text');
-textarea.addEventListener('input', function() {
+document.getElementById('standup-text').addEventListener('input', function() {
     document.getElementById('char-count').textContent = this.value.length + ' chars';
 });
 
@@ -368,10 +388,8 @@ document.querySelectorAll('.format-pill').forEach(btn => {
 function updatePills(val) {
     document.querySelectorAll('.format-pill').forEach(p => {
         const on = p.dataset.val === val;
-        p.classList.toggle('border-accent', on);
-        p.classList.toggle('text-accent', on);
-        p.classList.toggle('border-surface-border', !on);
-        p.classList.toggle('text-ink-muted', !on);
+        p.classList.toggle('border-accent', on);   p.classList.toggle('text-accent', on);
+        p.classList.toggle('border-surface-border', !on); p.classList.toggle('text-ink-muted', !on);
     });
 }
 
@@ -391,35 +409,39 @@ document.getElementById('length-slider').addEventListener('input', function() {
 });
 
 // ── Submit ─────────────────────────────────────────────────────────────────
-const genBtn     = document.getElementById('summarize-btn');
-const outWrap    = document.getElementById('output-container');
+const genBtn       = document.getElementById('summarize-btn');
+const outWrap      = document.getElementById('output-container');
 const progressCard = document.getElementById('progress-card');
 const summaryCard  = document.getElementById('summary-card');
 const summaryDiv   = document.getElementById('summary-result');
 const aiCard       = document.getElementById('ai-card');
 const savedNote    = document.getElementById('saved-notice');
+const textarea     = document.getElementById('standup-text');
 
 genBtn.addEventListener('click', async () => {
-    const text = textarea.value.trim();
-    const projectSelect = document.getElementById('project-select').value;
+    const text    = textarea.value.trim();
+    const project = document.getElementById('project-select').value;
 
+    // Validation
     if (!text) {
         textarea.style.borderColor = '#e24b4a';
         setTimeout(() => textarea.style.borderColor = '', 1500);
         return;
     }
-
-    // NEW: Enforce manual project selection
-    if (!projectSelect) {
-        alert("Please select a Project Database before generating.");
+    if (!project) {
+        const sel = document.getElementById('project-select');
+        sel.style.borderColor = '#e24b4a';
+        setTimeout(() => sel.style.borderColor = '', 1500);
         return;
     }
 
-    // Reset all output
+    // Reset output area
     summaryDiv.innerHTML = '';
     summaryDiv.classList.add('streaming-cursor');
     document.getElementById('members-row').innerHTML = '';
     document.getElementById('members-row').style.display = 'none';
+    document.getElementById('progress-names').innerHTML = '';
+    document.getElementById('progress-names').style.display = 'none';
     document.getElementById('action-items-list').innerHTML = '';
     document.getElementById('blockers-list').innerHTML = '';
     document.getElementById('word-count-badge').classList.add('hidden');
@@ -428,7 +450,7 @@ genBtn.addEventListener('click', async () => {
     savedNote.classList.add('hidden');
     summaryCard.classList.add('hidden');
     progressCard.classList.remove('hidden');
-    setStage('Stripping Teams noise…', 10);
+    setStage('Parsing transcript…', 10);
 
     outWrap.style.display = 'flex';
     outWrap.classList.remove('hidden');
@@ -439,21 +461,25 @@ genBtn.addEventListener('click', async () => {
 
     const body = {
         text,
-        length:           parseInt(document.getElementById('length-slider').value),
-        format_type:      formatSelect.value,
-        slide_count:      parseInt(document.getElementById('slide-count').value),
-        points_count:     parseInt(document.getElementById('points-count').value),
-        project:          projectSelect, // Sending the manual selection
+        length:       parseInt(document.getElementById('length-slider').value),
+        format_type:  formatSelect.value,
+        slide_count:  parseInt(document.getElementById('slide-count').value),
+        points_count: parseInt(document.getElementById('points-count').value),
+        project,
     };
 
     let rawMarkdown = '';
     let firstToken  = true;
+    let detectedNames = [];
 
     try {
         const res = await fetch('/summarize', {
             method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
         });
-        if (!res.ok) throw new Error('Server error ' + res.status);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.detail || `Server error ${res.status}`);
+        }
 
         const reader  = res.body.getReader();
         const decoder = new TextDecoder();
@@ -465,7 +491,7 @@ genBtn.addEventListener('click', async () => {
             buffer += decoder.decode(value, { stream: true });
 
             const events = buffer.split('\n\n');
-            buffer = events.pop();
+            buffer = events.pop(); // keep incomplete tail
 
             for (const block of events) {
                 if (!block.trim()) continue;
@@ -478,38 +504,47 @@ genBtn.addEventListener('click', async () => {
                 if (!dataStr) continue;
                 let payload;
                 try { payload = JSON.parse(dataStr); } catch { continue; }
-                
-                // ── Catch Stream Errors ───────────────────────────────────
+
+                // ── Stream error ──────────────────────────────────────────
                 if (eventType === 'error') {
-                    throw new Error(payload.error || "The AI stream crashed.");
+                    throw new Error(payload.error || 'The AI stream returned an error.');
                 }
 
-                // ── Stage events ──────────────────────────────────────────
-               
-                if (eventType === 'message' && payload.stage === 'cleaning') {
-                    setStage('Stripping Teams noise…', 20);
+                // ── Stage: cleaning ───────────────────────────────────────
+                else if (eventType === 'message' && payload.stage === 'cleaning') {
+                    setStage('Stripping Teams noise…', 25);
                 }
+
+                // ── Stage: names — show pills immediately in progress card ─
                 else if (eventType === 'message' && payload.stage === 'names') {
-                    setStage('Identified speakers…', 40);
+                    detectedNames = payload.names || [];
+                    if (detectedNames.length) {
+                        setStage(`Found ${detectedNames.length} speaker${detectedNames.length !== 1 ? 's' : ''}: ${detectedNames.join(', ')}`, 50);
+                        renderNamePills(document.getElementById('progress-names'), detectedNames);
+                    } else {
+                        setStage('No speaker names detected — summarising…', 50);
+                    }
                 }
 
-                // ── Summary tokens ────────────────────────────────────────
+                // ── Summary token ─────────────────────────────────────────
                 else if (eventType === 'message' && payload.token !== undefined && payload.token !== null) {
                     if (firstToken) {
-                        // Switch from progress card to summary card
                         progressCard.classList.add('hidden');
                         summaryCard.classList.remove('hidden');
+                        // Move name pills to summary card
+                        if (detectedNames.length) {
+                            renderNamePills(document.getElementById('members-row'), detectedNames);
+                        }
                         firstToken = false;
                     }
                     rawMarkdown += payload.token;
                     summaryDiv.innerHTML = marked.parse(rawMarkdown);
                 }
 
-                // ── Word-limit correction (backend trimmed the text) ──────
+                // ── Word-limit correction ─────────────────────────────────
                 else if (eventType === 'message' && payload.corrected_summary !== undefined) {
                     rawMarkdown = payload.corrected_summary;
                     summaryDiv.innerHTML = marked.parse(rawMarkdown);
-                    // Show live word count
                     const wc = rawMarkdown.trim().split(/\s+/).length;
                     const badge = document.getElementById('word-count-badge');
                     badge.textContent = wc + ' words';
@@ -525,26 +560,16 @@ genBtn.addEventListener('click', async () => {
                             `<li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5 shrink-0">›</span><span>${item}</span></li>`));
                     if (!payload.action_items?.length)
                         aiList.innerHTML = '<li class="text-ink-dim italic text-xs">None detected</li>';
-
                     (payload.blockers || []).forEach(b =>
                         blList.insertAdjacentHTML('beforeend',
                             `<li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5 shrink-0">›</span><span>${b}</span></li>`));
                     if (!payload.blockers?.length)
                         blList.innerHTML = '<li class="text-ink-dim italic text-xs">None detected</li>';
-
                     aiCard.classList.remove('hidden');
                 }
 
                 // ── Metadata ──────────────────────────────────────────────
                 else if (eventType === 'meta') {
-                    // Names as pills
-                    const row = document.getElementById('members-row');
-                    if (payload.names?.length) {
-                        payload.names.forEach(n =>
-                            row.insertAdjacentHTML('beforeend',
-                                `<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-accent-muted text-accent border border-accent/20">${n}</span>`));
-                        row.style.display = 'flex';
-                    }
                     if (payload.project)
                         applyProjectBadge(document.getElementById('output-project-badge'), payload.project);
                     if (payload.record_id) {
@@ -558,11 +583,10 @@ genBtn.addEventListener('click', async () => {
                 else if (eventType === 'done') {
                     summaryDiv.classList.remove('streaming-cursor');
                     const dot = document.getElementById('output-dot');
-                    dot.classList.remove('animate-pulse-dot','bg-accent');
+                    dot.classList.remove('animate-pulse-dot', 'bg-accent');
                     dot.classList.add('bg-emerald-400');
                     progressCard.classList.add('hidden');
-
-                    // Final word count if not already shown
+                    // Final word count for paragraphs mode
                     if (rawMarkdown && body.format_type === 'paragraphs') {
                         const wc = rawMarkdown.trim().split(/\s+/).length;
                         const badge = document.getElementById('word-count-badge');
@@ -576,7 +600,11 @@ genBtn.addEventListener('click', async () => {
     } catch (err) {
         progressCard.classList.add('hidden');
         summaryCard.classList.remove('hidden');
-        summaryDiv.innerHTML = `<p class="text-red-400 font-mono text-sm">Error: ${err.message}</p>`;
+        summaryDiv.innerHTML = `
+            <div class="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <svg class="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span class="text-red-400 font-mono text-sm">${err.message}</span>
+            </div>`;
         summaryDiv.classList.remove('streaming-cursor');
     } finally {
         genBtn.disabled = false;
