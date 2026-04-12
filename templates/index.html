@@ -36,26 +36,15 @@
     <style>
         *{box-sizing:border-box}
         body{background:#0f0f11;color:#f0eff6}
-
-        textarea,select,.num-input{
-            background:#16161a;border:1px solid #232329;color:#f0eff6;
-            font-family:'DM Mono',monospace;font-size:13px;outline:none;
-            transition:border-color .2s,box-shadow .2s;
-        }
+        textarea,select,.num-input{background:#16161a;border:1px solid #232329;color:#f0eff6;font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color .2s,box-shadow .2s;}
         textarea{resize:none;line-height:1.7;width:100%}
         textarea::placeholder{color:#55545f}
         textarea:focus,select:focus,.num-input:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,.2)}
-        select{
-            appearance:none;
-            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8a98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-            background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;font-family:'Sora',sans-serif;
-        }
+        select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8a98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;cursor:pointer;font-family:'Sora',sans-serif;}
         .num-input{width:64px;text-align:center;font-size:14px}
-
         #length-slider{-webkit-appearance:none;appearance:none;background:#232329;height:4px;border-radius:2px;outline:none;width:100%}
         #length-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#7c6af7;cursor:pointer;border:2px solid #0f0f11;transition:box-shadow .2s}
         #length-slider::-webkit-slider-thumb:hover{box-shadow:0 0 0 4px rgba(124,106,247,.25)}
-
         #summary-result{font-family:'Sora',sans-serif;font-size:14px;line-height:1.85;color:#d4d3e0}
         #summary-result h1,#summary-result h2,#summary-result h3{color:#f0eff6;font-weight:500;margin:1.1em 0 .4em}
         #summary-result ul{padding-left:1.25em}
@@ -64,31 +53,18 @@
         #summary-result strong{color:#f0eff6;font-weight:500}
         #summary-result p{margin-bottom:.75em}
         .streaming-cursor::after{content:'▋';animation:cursor 1s step-end infinite;color:#7c6af7;font-size:13px;margin-left:2px}
-
-        .badge-onblick    {background:#0c2d3e;color:#0ea5e9;border-color:#0ea5e940}
-        .badge-reccopilot {background:#2d1a3e;color:#a855f7;border-color:#a855f740}
-        .badge-sales      {background:#0f2d23;color:#10b981;border-color:#10b98140}
-        .badge-rig        {background:#2d200f;color:#f59e0b;border-color:#f59e0b40}
-        .badge-hrbp       {background:#3e1a2d;color:#ec4899;border-color:#ec489940}
-        .badge-general    {background:#1a1a1a;color:#6b7280;border-color:#6b728040}
-
+        .badge-onblick{background:#0c2d3e;color:#0ea5e9;border-color:#0ea5e940}
+        .badge-reccopilot{background:#2d1a3e;color:#a855f7;border-color:#a855f740}
+        .badge-sales{background:#0f2d23;color:#10b981;border-color:#10b98140}
+        .badge-rig{background:#2d200f;color:#f59e0b;border-color:#f59e0b40}
+        .badge-hrbp{background:#3e1a2d;color:#ec4899;border-color:#ec489940}
+        .badge-general{background:#1a1a1a;color:#6b7280;border-color:#6b728040}
         .stage-bar{height:2px;background:#232329;border-radius:1px;overflow:hidden}
         .stage-bar-fill{height:100%;background:#7c6af7;border-radius:1px;transition:width .5s ease}
-
-        .shimmer-line{
-            height:12px;border-radius:4px;
-            background:linear-gradient(90deg,#232329 25%,#2d2d33 50%,#232329 75%);
-            background-size:400% 100%;
-            animation:shimmer 2s linear infinite;
-        }
-
+        .shimmer-line{height:12px;border-radius:4px;background:linear-gradient(90deg,#232329 25%,#2d2d33 50%,#232329 75%);background-size:400% 100%;animation:shimmer 2s linear infinite;}
         .hidden{display:none!important}
-        body::before{content:'';position:fixed;inset:0;pointer-events:none;
-            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-            z-index:0;opacity:.6}
-        .glow-blob{position:fixed;width:600px;height:400px;border-radius:50%;
-            background:radial-gradient(ellipse,rgba(124,106,247,.07) 0%,transparent 70%);
-            top:-100px;right:-100px;pointer-events:none;z-index:0}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");z-index:0;opacity:.6}
+        .glow-blob{position:fixed;width:600px;height:400px;border-radius:50%;background:radial-gradient(ellipse,rgba(124,106,247,.07) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none;z-index:0}
     </style>
 </head>
 <body class="min-h-screen font-sans antialiased">
@@ -97,14 +73,27 @@
 <!-- Navbar -->
 <nav class="relative z-10 border-b border-surface-border">
     <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
-        <div class="flex items-center gap-2.5">
-            <div class="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
-                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                </svg>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <span class="font-semibold text-sm tracking-tight text-ink">StandupAI</span>
+                <span class="text-[10px] font-mono bg-accent-muted text-accent px-1.5 py-0.5 rounded uppercase tracking-wider">RIG</span>
             </div>
-            <span class="font-semibold text-sm tracking-tight text-ink">StandupAI</span>
-            <span class="text-[10px] font-mono bg-accent-muted text-accent px-1.5 py-0.5 rounded uppercase tracking-wider">RIG</span>
+            <!-- Nav buttons — always visible -->
+            <div class="flex items-center gap-1 border-l border-surface-border pl-3">
+                <a href="/history-ui"
+                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-card border border-surface-border hover:border-accent transition-all">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    History
+                </a>
+                <a href="/insights-ui"
+                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-card border border-surface-border hover:border-accent transition-all">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Insights
+                </a>
+            </div>
         </div>
         <div id="api-status" class="flex items-center gap-1.5">
             <div id="status-dot" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse-dot"></div>
@@ -115,31 +104,22 @@
 
 <!-- Main grid -->
 <div class="relative z-10 max-w-5xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-[1fr_370px] gap-6">
-
-    <!-- LEFT -->
     <div class="flex flex-col gap-5">
         <div>
-            <h1 class="text-2xl font-semibold text-ink leading-tight">
-                Standup <span class="font-serif italic text-accent">Summarizer</span>
-            </h1>
+            <h1 class="text-2xl font-semibold text-ink leading-tight">Standup <span class="font-serif italic text-accent">Summarizer</span></h1>
             <p class="text-sm text-ink-muted mt-1">Paste your Teams transcript — names, action items, and blockers extracted automatically.</p>
         </div>
-
-        <!-- Transcript input -->
         <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Teams transcript</span>
                 <div class="h-px flex-1 bg-surface-border"></div>
             </div>
-            <textarea id="standup-text" rows="11" class="rounded-lg p-3"
-                placeholder="Paste your Microsoft Teams transcript here..."></textarea>
+            <textarea id="standup-text" rows="11" class="rounded-lg p-3" placeholder="Paste your Microsoft Teams transcript here..."></textarea>
             <div class="flex items-center justify-between text-[11px] font-mono text-ink-dim">
                 <span>← supports inline, multi-line, and timestamped formats</span>
                 <span id="char-count">0 chars</span>
             </div>
         </div>
-
-        <!-- Project selection -->
         <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-3">
             <div class="flex items-center gap-2">
                 <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Project Assignment</span>
@@ -158,26 +138,20 @@
                 </select>
             </div>
         </div>
-
-        <!-- Generate -->
         <button id="summarize-btn"
             class="w-full h-11 rounded-xl bg-accent hover:bg-purple-500 text-white text-sm font-medium transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2"
             style="box-shadow:0 0 24px rgba(124,106,247,.3)">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
             <span>Generate Summary</span>
         </button>
     </div>
 
-    <!-- RIGHT: config -->
     <div class="flex flex-col gap-4">
         <div class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-5">
             <div class="flex items-center gap-2">
                 <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">Configuration</span>
                 <div class="h-px flex-1 bg-surface-border"></div>
             </div>
-
             <div class="flex flex-col gap-2">
                 <label class="text-xs font-medium text-ink-muted" for="format-select">Output Format</label>
                 <select id="format-select" class="rounded-lg px-3 py-2.5 pr-8">
@@ -186,24 +160,19 @@
                     <option value="slides">Presentation Slides</option>
                 </select>
             </div>
-
             <div class="flex gap-2">
                 <button data-val="paragraphs" class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">¶ Para</button>
                 <button data-val="points"     class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">• Bullets</button>
                 <button data-val="slides"     class="format-pill flex-1 rounded-lg py-2 text-xs font-medium border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors bg-surface-card">⊡ Slides</button>
             </div>
-
             <div id="length-group" class="flex flex-col gap-3">
                 <div class="flex items-center justify-between">
                     <label class="text-xs font-medium text-ink-muted">Word Limit</label>
-                    <span class="text-xs font-mono bg-accent-muted text-accent px-2 py-0.5 rounded">
-                    max <span id="length-display">30</span> words
-                    </span>
+                    <span class="text-xs font-mono bg-accent-muted text-accent px-2 py-0.5 rounded">max <span id="length-display">30</span> words</span>
                 </div>
                 <input type="range" id="length-slider" min="20" max="300" step="10" value="30">
                 <div class="flex justify-between text-[10px] font-mono text-ink-dim"><span>20 words</span><span>300 words</span></div>
             </div>
-
             <div id="points-count-group" class="hidden flex-col gap-2">
                 <label class="text-xs font-medium text-ink-muted">Bullet Points</label>
                 <div class="flex items-center gap-3">
@@ -212,7 +181,6 @@
                     <button onclick="adj('points-count',1)"  class="w-8 h-8 rounded-lg border border-surface-border text-ink-muted hover:border-accent hover:text-accent transition-colors">+</button>
                 </div>
             </div>
-
             <div id="slide-count-group" class="hidden flex-col gap-2">
                 <label class="text-xs font-medium text-ink-muted">Slides</label>
                 <div class="flex items-center gap-3">
@@ -222,15 +190,13 @@
                 </div>
             </div>
         </div>
-
-        <!-- How it works -->
         <div class="rounded-xl border border-surface-border bg-surface-card p-4 flex flex-col gap-2.5">
             <span class="text-[10px] font-mono text-ink-dim uppercase tracking-widest">How it works</span>
             <ul class="text-xs text-ink-muted space-y-2">
-                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">①</span> Teams noise stripped instantly (no API call)</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">①</span> Teams noise stripped instantly</li>
                 <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">②</span> Speaker names extracted from transcript structure</li>
-                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">③</span> Summary grouped by person, hard word limit enforced</li>
-                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">④</span> Saved to selected project database</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">③</span> Summary grouped by person, word limit enforced</li>
+                <li class="flex gap-2 items-start"><span class="text-accent shrink-0 mt-0.5">④</span> Saved to project database for insights</li>
             </ul>
         </div>
     </div>
@@ -238,17 +204,12 @@
 
 <!-- Output section -->
 <div id="output-container" class="hidden relative z-10 max-w-5xl mx-auto px-6 pb-16 flex flex-col gap-4">
-
-    <!-- Progress card -->
     <div id="progress-card" class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-4">
         <div class="flex items-center justify-between">
             <span class="text-xs font-mono text-ink-muted uppercase tracking-widest">Processing</span>
             <span id="stage-label" class="text-xs font-mono text-accent">Starting…</span>
         </div>
-        <div class="stage-bar">
-            <div id="stage-bar-fill" class="stage-bar-fill" style="width:0%"></div>
-        </div>
-        <!-- FIX: Names detected here immediately, before summary starts -->
+        <div class="stage-bar"><div id="stage-bar-fill" class="stage-bar-fill" style="width:0%"></div></div>
         <div id="progress-names" class="hidden flex-wrap gap-2"></div>
         <div id="skeleton" class="flex flex-col gap-2.5 mt-1">
             <div class="shimmer-line w-full"></div>
@@ -256,8 +217,6 @@
             <div class="shimmer-line w-3/5"></div>
         </div>
     </div>
-
-    <!-- Summary card -->
     <div id="summary-card" class="hidden rounded-xl border border-surface-border bg-surface-card p-6 animate-fade-up">
         <div class="flex items-center justify-between mb-4">
             <div class="flex items-center gap-3">
@@ -267,349 +226,92 @@
             </div>
             <div class="flex items-center gap-2">
                 <span id="word-count-badge" class="hidden text-[10px] font-mono text-ink-dim px-2 py-0.5 rounded border border-surface-border"></span>
-                <button id="copy-btn" onclick="copyResult()"
-                    class="text-xs font-mono text-ink-dim hover:text-accent transition-colors flex items-center gap-1.5 border border-surface-border rounded-lg px-3 py-1.5">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                    </svg>
+                <button id="copy-btn" onclick="copyResult()" class="text-xs font-mono text-ink-dim hover:text-accent transition-colors flex items-center gap-1.5 border border-surface-border rounded-lg px-3 py-1.5">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     Copy
                 </button>
             </div>
         </div>
-        <!-- Member pills (also shown here after summary card appears) -->
         <div id="members-row" class="hidden flex-wrap gap-2 mb-4"></div>
         <div id="summary-result" class="streaming-cursor"></div>
     </div>
-
-    <!-- Action items + blockers -->
     <div id="ai-card" class="hidden rounded-xl border border-surface-border bg-surface-card p-6 animate-fade-up">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
                 <div class="flex items-center gap-2 mb-3">
-                    <div class="w-5 h-5 rounded-md bg-emerald-500/10 flex items-center justify-center">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
+                    <div class="w-5 h-5 rounded-md bg-emerald-500/10 flex items-center justify-center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
                     <span class="text-xs font-mono text-emerald-400 uppercase tracking-widest">Action Items</span>
                 </div>
                 <ul id="action-items-list" class="space-y-2 text-sm text-ink-muted"></ul>
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-3">
-                    <div class="w-5 h-5 rounded-md bg-red-500/10 flex items-center justify-center">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </div>
+                    <div class="w-5 h-5 rounded-md bg-red-500/10 flex items-center justify-center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
                     <span class="text-xs font-mono text-red-400 uppercase tracking-widest">Blockers</span>
                 </div>
                 <ul id="blockers-list" class="space-y-2 text-sm text-ink-muted"></ul>
             </div>
         </div>
     </div>
-
-    <!-- Saved notice -->
     <div id="saved-notice" class="hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-surface-border bg-surface-card text-xs text-ink-muted font-mono">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2">
-            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
-        </svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
         <span id="saved-notice-text"></span>
     </div>
 </div>
 
 <script>
-// ── Helpers ────────────────────────────────────────────────────────────────
-function adj(id, d) {
-    const el = document.getElementById(id);
-    el.value = Math.max(+el.min, Math.min(+el.max, +el.value + d));
-}
-
-function copyResult() {
-    navigator.clipboard.writeText(document.getElementById('summary-result').innerText).then(() => {
-        const btn = document.getElementById('copy-btn');
-        btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
-        btn.classList.add('text-emerald-400');
-        setTimeout(() => {
-            btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';
-            btn.classList.remove('text-emerald-400');
-        }, 2000);
-    });
-}
-
-const PROJECT_LABELS = { onblick:'Onblick', reccopilot:'Reccopilot', sales:'Sales', rig:'RIG', hrbp:'HRBP', general:'General' };
-
-function applyProjectBadge(el, project) {
-    el.textContent = '● ' + (PROJECT_LABELS[project] || project);
-    el.className = el.className.replace(/badge-\w+/g, '');
-    el.classList.add(`badge-${project}`, 'text-[10px]', 'font-mono', 'px-2', 'py-0.5', 'rounded', 'border');
-    el.classList.remove('hidden');
-}
-
-function setStage(label, pct) {
-    document.getElementById('stage-label').textContent = label;
-    document.getElementById('stage-bar-fill').style.width = pct + '%';
-}
-
-// Render name pills into a target container element
-function renderNamePills(container, names) {
-    container.innerHTML = '';
-    if (!names || !names.length) return;
-    names.forEach(n => {
-        container.insertAdjacentHTML('beforeend',
-            `<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-accent-muted text-accent border border-accent/20">${n}</span>`);
-    });
-    container.style.display = 'flex';
-    container.classList.remove('hidden');
-}
-
-// ── API status ─────────────────────────────────────────────────────────────
-async function checkStatus() {
-    const dot = document.getElementById('status-dot');
-    const lbl = document.getElementById('status-label');
-    try {
-        const r = await fetch('/health', { signal: AbortSignal.timeout(4000) });
-        if (r.ok) { dot.className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot'; lbl.textContent='API online'; }
-        else throw 0;
-    } catch { dot.className='w-2 h-2 rounded-full bg-red-500'; lbl.textContent='API offline'; }
-}
-checkStatus();
-setInterval(checkStatus, 30000);
-
-// ── Char counter ───────────────────────────────────────────────────────────
-document.getElementById('standup-text').addEventListener('input', function() {
-    document.getElementById('char-count').textContent = this.value.length + ' chars';
-});
-
-// ── Format switcher ────────────────────────────────────────────────────────
-const formatSelect = document.getElementById('format-select');
-
-document.querySelectorAll('.format-pill').forEach(btn => {
-    btn.addEventListener('click', () => { formatSelect.value = btn.dataset.val; formatSelect.dispatchEvent(new Event('change')); });
-});
-
-function updatePills(val) {
-    document.querySelectorAll('.format-pill').forEach(p => {
-        const on = p.dataset.val === val;
-        p.classList.toggle('border-accent', on);   p.classList.toggle('text-accent', on);
-        p.classList.toggle('border-surface-border', !on); p.classList.toggle('text-ink-muted', !on);
-    });
-}
-
-formatSelect.addEventListener('change', function() {
-    ['slide-count-group','points-count-group','length-group'].forEach(id => {
-        const el = document.getElementById(id); el.classList.add('hidden'); el.style.display='';
-    });
-    if      (this.value === 'slides') { const g=document.getElementById('slide-count-group');  g.classList.remove('hidden'); g.style.display='flex'; }
-    else if (this.value === 'points') { const g=document.getElementById('points-count-group'); g.classList.remove('hidden'); g.style.display='flex'; }
-    else                              { document.getElementById('length-group').classList.remove('hidden'); }
-    updatePills(this.value);
-});
+function adj(id,d){const el=document.getElementById(id);el.value=Math.max(+el.min,Math.min(+el.max,+el.value+d));}
+function copyResult(){navigator.clipboard.writeText(document.getElementById('summary-result').innerText).then(()=>{const btn=document.getElementById('copy-btn');btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';btn.classList.add('text-emerald-400');setTimeout(()=>{btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy';btn.classList.remove('text-emerald-400');},2000);});}
+const PROJECT_LABELS={onblick:'Onblick',reccopilot:'Reccopilot',sales:'Sales',rig:'RIG',hrbp:'HRBP',general:'General'};
+function applyProjectBadge(el,project){el.textContent='● '+(PROJECT_LABELS[project]||project);el.className=el.className.replace(/badge-\w+/g,'');el.classList.add(`badge-${project}`,'text-[10px]','font-mono','px-2','py-0.5','rounded','border');el.classList.remove('hidden');}
+function setStage(label,pct){document.getElementById('stage-label').textContent=label;document.getElementById('stage-bar-fill').style.width=pct+'%';}
+function renderNamePills(container,names){container.innerHTML='';if(!names||!names.length)return;names.forEach(n=>container.insertAdjacentHTML('beforeend',`<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-accent-muted text-accent border border-accent/20">${n}</span>`));container.style.display='flex';container.classList.remove('hidden');}
+async function checkStatus(){const dot=document.getElementById('status-dot'),lbl=document.getElementById('status-label');try{const r=await fetch('/health',{signal:AbortSignal.timeout(4000)});if(r.ok){dot.className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot';lbl.textContent='API online';}else throw 0;}catch{dot.className='w-2 h-2 rounded-full bg-red-500';lbl.textContent='API offline';}}
+checkStatus();setInterval(checkStatus,30000);
+document.getElementById('standup-text').addEventListener('input',function(){document.getElementById('char-count').textContent=this.value.length+' chars';});
+const formatSelect=document.getElementById('format-select');
+document.querySelectorAll('.format-pill').forEach(btn=>btn.addEventListener('click',()=>{formatSelect.value=btn.dataset.val;formatSelect.dispatchEvent(new Event('change'));}));
+function updatePills(val){document.querySelectorAll('.format-pill').forEach(p=>{const on=p.dataset.val===val;p.classList.toggle('border-accent',on);p.classList.toggle('text-accent',on);p.classList.toggle('border-surface-border',!on);p.classList.toggle('text-ink-muted',!on);});}
+formatSelect.addEventListener('change',function(){['slide-count-group','points-count-group','length-group'].forEach(id=>{const el=document.getElementById(id);el.classList.add('hidden');el.style.display='';});if(this.value==='slides'){const g=document.getElementById('slide-count-group');g.classList.remove('hidden');g.style.display='flex';}else if(this.value==='points'){const g=document.getElementById('points-count-group');g.classList.remove('hidden');g.style.display='flex';}else{document.getElementById('length-group').classList.remove('hidden');}updatePills(this.value);});
 updatePills('paragraphs');
-
-document.getElementById('length-slider').addEventListener('input', function() {
-    document.getElementById('length-display').textContent = this.value;
-});
-
-// ── Submit ─────────────────────────────────────────────────────────────────
-const genBtn       = document.getElementById('summarize-btn');
-const outWrap      = document.getElementById('output-container');
-const progressCard = document.getElementById('progress-card');
-const summaryCard  = document.getElementById('summary-card');
-const summaryDiv   = document.getElementById('summary-result');
-const aiCard       = document.getElementById('ai-card');
-const savedNote    = document.getElementById('saved-notice');
-const textarea     = document.getElementById('standup-text');
-
-genBtn.addEventListener('click', async () => {
-    const text    = textarea.value.trim();
-    const project = document.getElementById('project-select').value;
-
-    // Validation
-    if (!text) {
-        textarea.style.borderColor = '#e24b4a';
-        setTimeout(() => textarea.style.borderColor = '', 1500);
-        return;
-    }
-    if (!project) {
-        const sel = document.getElementById('project-select');
-        sel.style.borderColor = '#e24b4a';
-        setTimeout(() => sel.style.borderColor = '', 1500);
-        return;
-    }
-
-    // Reset output area
-    summaryDiv.innerHTML = '';
-    summaryDiv.classList.add('streaming-cursor');
-    document.getElementById('members-row').innerHTML = '';
-    document.getElementById('members-row').style.display = 'none';
-    document.getElementById('progress-names').innerHTML = '';
-    document.getElementById('progress-names').style.display = 'none';
-    document.getElementById('action-items-list').innerHTML = '';
-    document.getElementById('blockers-list').innerHTML = '';
-    document.getElementById('word-count-badge').classList.add('hidden');
-    document.getElementById('output-project-badge').classList.add('hidden');
-    aiCard.classList.add('hidden');
-    savedNote.classList.add('hidden');
-    summaryCard.classList.add('hidden');
-    progressCard.classList.remove('hidden');
-    setStage('Parsing transcript…', 10);
-
-    outWrap.style.display = 'flex';
-    outWrap.classList.remove('hidden');
-    outWrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    genBtn.disabled = true;
-    genBtn.innerHTML = `<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Processing…</span>`;
-
-    const body = {
-        text,
-        length:       parseInt(document.getElementById('length-slider').value),
-        format_type:  formatSelect.value,
-        slide_count:  parseInt(document.getElementById('slide-count').value),
-        points_count: parseInt(document.getElementById('points-count').value),
-        project,
-    };
-
-    let rawMarkdown = '';
-    let firstToken  = true;
-    let detectedNames = [];
-
-    try {
-        const res = await fetch('/summarize', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
-        });
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            throw new Error(err.detail || `Server error ${res.status}`);
-        }
-
-        const reader  = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
-
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-
-            const events = buffer.split('\n\n');
-            buffer = events.pop(); // keep incomplete tail
-
-            for (const block of events) {
-                if (!block.trim()) continue;
-                const lines = block.split('\n');
-                let eventType = 'message', dataStr = '';
-                for (const line of lines) {
-                    if (line.startsWith('event: '))     eventType = line.slice(7).trim();
-                    else if (line.startsWith('data: ')) dataStr   = line.slice(6).trim();
-                }
-                if (!dataStr) continue;
-                let payload;
-                try { payload = JSON.parse(dataStr); } catch { continue; }
-
-                // ── Stream error ──────────────────────────────────────────
-                if (eventType === 'error') {
-                    throw new Error(payload.error || 'The AI stream returned an error.');
-                }
-
-                // ── Stage: cleaning ───────────────────────────────────────
-                else if (eventType === 'message' && payload.stage === 'cleaning') {
-                    setStage('Stripping Teams noise…', 25);
-                }
-
-                // ── Stage: names — show pills immediately in progress card ─
-                else if (eventType === 'message' && payload.stage === 'names') {
-                    detectedNames = payload.names || [];
-                    if (detectedNames.length) {
-                        setStage(`Found ${detectedNames.length} speaker${detectedNames.length !== 1 ? 's' : ''}: ${detectedNames.join(', ')}`, 50);
-                        renderNamePills(document.getElementById('progress-names'), detectedNames);
-                    } else {
-                        setStage('No speaker names detected — summarising…', 50);
-                    }
-                }
-
-                // ── Summary token ─────────────────────────────────────────
-                else if (eventType === 'message' && payload.token !== undefined && payload.token !== null) {
-                    if (firstToken) {
-                        progressCard.classList.add('hidden');
-                        summaryCard.classList.remove('hidden');
-                        // Move name pills to summary card
-                        if (detectedNames.length) {
-                            renderNamePills(document.getElementById('members-row'), detectedNames);
-                        }
-                        firstToken = false;
-                    }
-                    rawMarkdown += payload.token;
-                    summaryDiv.innerHTML = marked.parse(rawMarkdown);
-                }
-
-                // ── Word-limit correction ─────────────────────────────────
-                else if (eventType === 'message' && payload.corrected_summary !== undefined) {
-                    rawMarkdown = payload.corrected_summary;
-                    summaryDiv.innerHTML = marked.parse(rawMarkdown);
-                    const wc = rawMarkdown.trim().split(/\s+/).length;
-                    const badge = document.getElementById('word-count-badge');
-                    badge.textContent = wc + ' words';
-                    badge.classList.remove('hidden');
-                }
-
-                // ── Action items ──────────────────────────────────────────
-                else if (eventType === 'action_items') {
-                    const aiList = document.getElementById('action-items-list');
-                    const blList = document.getElementById('blockers-list');
-                    (payload.action_items || []).forEach(item =>
-                        aiList.insertAdjacentHTML('beforeend',
-                            `<li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5 shrink-0">›</span><span>${item}</span></li>`));
-                    if (!payload.action_items?.length)
-                        aiList.innerHTML = '<li class="text-ink-dim italic text-xs">None detected</li>';
-                    (payload.blockers || []).forEach(b =>
-                        blList.insertAdjacentHTML('beforeend',
-                            `<li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5 shrink-0">›</span><span>${b}</span></li>`));
-                    if (!payload.blockers?.length)
-                        blList.innerHTML = '<li class="text-ink-dim italic text-xs">None detected</li>';
-                    aiCard.classList.remove('hidden');
-                }
-
-                // ── Metadata ──────────────────────────────────────────────
-                else if (eventType === 'meta') {
-                    if (payload.project)
-                        applyProjectBadge(document.getElementById('output-project-badge'), payload.project);
-                    if (payload.record_id) {
-                        document.getElementById('saved-notice-text').textContent =
-                            `Saved to ${payload.project}.db · record #${payload.record_id}`;
-                        savedNote.classList.remove('hidden');
-                    }
-                }
-
-                // ── Done ──────────────────────────────────────────────────
-                else if (eventType === 'done') {
-                    summaryDiv.classList.remove('streaming-cursor');
-                    const dot = document.getElementById('output-dot');
-                    dot.classList.remove('animate-pulse-dot', 'bg-accent');
-                    dot.classList.add('bg-emerald-400');
-                    progressCard.classList.add('hidden');
-                    // Final word count for paragraphs mode
-                    if (rawMarkdown && body.format_type === 'paragraphs') {
-                        const wc = rawMarkdown.trim().split(/\s+/).length;
-                        const badge = document.getElementById('word-count-badge');
-                        badge.textContent = wc + ' words';
-                        badge.classList.remove('hidden');
-                    }
-                }
+document.getElementById('length-slider').addEventListener('input',function(){document.getElementById('length-display').textContent=this.value;});
+const genBtn=document.getElementById('summarize-btn'),outWrap=document.getElementById('output-container'),progressCard=document.getElementById('progress-card'),summaryCard=document.getElementById('summary-card'),summaryDiv=document.getElementById('summary-result'),aiCard=document.getElementById('ai-card'),savedNote=document.getElementById('saved-notice'),textarea=document.getElementById('standup-text');
+genBtn.addEventListener('click',async()=>{
+    const text=textarea.value.trim(),project=document.getElementById('project-select').value;
+    if(!text){textarea.style.borderColor='#e24b4a';setTimeout(()=>textarea.style.borderColor='',1500);return;}
+    if(!project){const sel=document.getElementById('project-select');sel.style.borderColor='#e24b4a';setTimeout(()=>sel.style.borderColor='',1500);return;}
+    summaryDiv.innerHTML='';summaryDiv.classList.add('streaming-cursor');
+    document.getElementById('members-row').innerHTML='';document.getElementById('members-row').style.display='none';
+    document.getElementById('progress-names').innerHTML='';document.getElementById('progress-names').style.display='none';
+    document.getElementById('action-items-list').innerHTML='';document.getElementById('blockers-list').innerHTML='';
+    document.getElementById('word-count-badge').classList.add('hidden');document.getElementById('output-project-badge').classList.add('hidden');
+    aiCard.classList.add('hidden');savedNote.classList.add('hidden');summaryCard.classList.add('hidden');
+    progressCard.classList.remove('hidden');setStage('Parsing transcript…',10);
+    outWrap.style.display='flex';outWrap.classList.remove('hidden');outWrap.scrollIntoView({behavior:'smooth',block:'start'});
+    genBtn.disabled=true;genBtn.innerHTML=`<svg class="animate-spin" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><span>Processing…</span>`;
+    const body={text,length:parseInt(document.getElementById('length-slider').value),format_type:formatSelect.value,slide_count:parseInt(document.getElementById('slide-count').value),points_count:parseInt(document.getElementById('points-count').value),project};
+    let rawMarkdown='',firstToken=true,detectedNames=[];
+    try{
+        const res=await fetch('/summarize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.detail||`Server error ${res.status}`);}
+        const reader=res.body.getReader(),decoder=new TextDecoder();let buffer='';
+        while(true){const{value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});
+            const events=buffer.split('\n\n');buffer=events.pop();
+            for(const block of events){if(!block.trim())continue;const lines=block.split('\n');let eventType='message',dataStr='';
+                for(const line of lines){if(line.startsWith('event: '))eventType=line.slice(7).trim();else if(line.startsWith('data: '))dataStr=line.slice(6).trim();}
+                if(!dataStr)continue;let payload;try{payload=JSON.parse(dataStr);}catch{continue;}
+                if(eventType==='error')throw new Error(payload.error||'Stream error');
+                else if(eventType==='message'&&payload.stage==='cleaning')setStage('Stripping Teams noise…',25);
+                else if(eventType==='message'&&payload.stage==='names'){detectedNames=payload.names||[];if(detectedNames.length){setStage(`Found: ${detectedNames.join(', ')}`,50);renderNamePills(document.getElementById('progress-names'),detectedNames);}else setStage('No speakers detected — summarising…',50);}
+                else if(eventType==='message'&&payload.token!==undefined&&payload.token!==null){if(firstToken){progressCard.classList.add('hidden');summaryCard.classList.remove('hidden');if(detectedNames.length)renderNamePills(document.getElementById('members-row'),detectedNames);firstToken=false;}rawMarkdown+=payload.token;summaryDiv.innerHTML=marked.parse(rawMarkdown);}
+                else if(eventType==='message'&&payload.corrected_summary!==undefined){rawMarkdown=payload.corrected_summary;summaryDiv.innerHTML=marked.parse(rawMarkdown);const wc=rawMarkdown.trim().split(/\s+/).length;const badge=document.getElementById('word-count-badge');badge.textContent=wc+' words';badge.classList.remove('hidden');}
+                else if(eventType==='action_items'){const aiList=document.getElementById('action-items-list'),blList=document.getElementById('blockers-list');(payload.action_items||[]).forEach(item=>aiList.insertAdjacentHTML('beforeend',`<li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5 shrink-0">›</span><span>${item}</span></li>`));if(!payload.action_items?.length)aiList.innerHTML='<li class="text-ink-dim italic text-xs">None detected</li>';(payload.blockers||[]).forEach(b=>blList.insertAdjacentHTML('beforeend',`<li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5 shrink-0">›</span><span>${b}</span></li>`));if(!payload.blockers?.length)blList.innerHTML='<li class="text-ink-dim italic text-xs">None detected</li>';aiCard.classList.remove('hidden');}
+                else if(eventType==='meta'){if(payload.project)applyProjectBadge(document.getElementById('output-project-badge'),payload.project);if(payload.record_id){document.getElementById('saved-notice-text').textContent=`Saved to ${payload.project}.db · record #${payload.record_id}`;savedNote.classList.remove('hidden');}}
+                else if(eventType==='done'){summaryDiv.classList.remove('streaming-cursor');const dot=document.getElementById('output-dot');dot.classList.remove('animate-pulse-dot','bg-accent');dot.classList.add('bg-emerald-400');progressCard.classList.add('hidden');if(rawMarkdown&&body.format_type==='paragraphs'){const wc=rawMarkdown.trim().split(/\s+/).length;const badge=document.getElementById('word-count-badge');badge.textContent=wc+' words';badge.classList.remove('hidden');}}
             }
         }
-
-    } catch (err) {
-        progressCard.classList.add('hidden');
-        summaryCard.classList.remove('hidden');
-        summaryDiv.innerHTML = `
-            <div class="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                <svg class="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <span class="text-red-400 font-mono text-sm">${err.message}</span>
-            </div>`;
-        summaryDiv.classList.remove('streaming-cursor');
-    } finally {
-        genBtn.disabled = false;
-        genBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>Generate Summary</span>`;
-    }
+    }catch(err){progressCard.classList.add('hidden');summaryCard.classList.remove('hidden');summaryDiv.innerHTML=`<div class="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20"><svg class="shrink-0 mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span class="text-red-400 font-mono text-sm">${err.message}</span></div>`;summaryDiv.classList.remove('streaming-cursor');}
+    finally{genBtn.disabled=false;genBtn.innerHTML=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg><span>Generate Summary</span>`;}
 });
 </script>
 </body>

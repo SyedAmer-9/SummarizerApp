@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StandupAI — History</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={theme:{extend:{fontFamily:{sans:['Sora','sans-serif'],serif:['Instrument Serif','serif'],mono:['DM Mono','monospace']},colors:{surface:{DEFAULT:'#0f0f11',card:'#16161a',border:'#232329'},accent:{DEFAULT:'#7c6af7',muted:'#2a2347'},ink:{DEFAULT:'#f0eff6',muted:'#8b8a98',dim:'#55545f'}},keyframes:{fadeUp:{'0%':{opacity:'0',transform:'translateY(8px)'},'100%':{opacity:'1',transform:'translateY(0)'}},shimmer:{'0%':{backgroundPosition:'200% 0'},'100%':{backgroundPosition:'-200% 0'}}},animations:{'fade-up':'fadeUp 0.3s ease forwards',shimmer:'shimmer 2s linear infinite'}}}}</script>
+    <style>
+        *{box-sizing:border-box}body{background:#0f0f11;color:#f0eff6}
+        select{appearance:none;background:#16161a;border:1px solid #232329;color:#f0eff6;font-family:'Sora',sans-serif;font-size:13px;outline:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b8a98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;}
+        select:focus{border-color:#7c6af7;box-shadow:0 0 0 3px rgba(124,106,247,.2)}
+        .badge-onblick{background:#0c2d3e;color:#0ea5e9;border-color:#0ea5e940}.badge-reccopilot{background:#2d1a3e;color:#a855f7;border-color:#a855f740}.badge-sales{background:#0f2d23;color:#10b981;border-color:#10b98140}.badge-rig{background:#2d200f;color:#f59e0b;border-color:#f59e0b40}.badge-hrbp{background:#3e1a2d;color:#ec4899;border-color:#ec489940}.badge-general{background:#1a1a1a;color:#6b7280;border-color:#6b728040}
+        .shimmer-line{height:14px;border-radius:4px;background:linear-gradient(90deg,#232329 25%,#2d2d33 50%,#232329 75%);background-size:400% 100%;animation:shimmer 2s linear infinite;}
+        @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+        @keyframes fadeUp{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:translateY(0)}}
+        .record-card{animation:fadeUp 0.3s ease forwards}
+        .summary-prose{font-family:'Sora',sans-serif;font-size:13px;line-height:1.75;color:#b0afc0}
+        .summary-prose h1,.summary-prose h2,.summary-prose h3{color:#f0eff6;font-weight:500;margin:.8em 0 .3em;font-size:13px}
+        .summary-prose ul{padding-left:1.1em}.summary-prose li{margin-bottom:.25em}
+        .summary-prose hr{border:none;border-top:1px solid #232329;margin:1em 0}
+        .summary-prose p{margin-bottom:.6em}
+        .hidden{display:none!important}
+        body::before{content:'';position:fixed;inset:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");z-index:0;opacity:.6}
+    </style>
+</head>
+<body class="min-h-screen font-sans antialiased">
+
+<!-- Navbar -->
+<nav class="relative z-10 border-b border-surface-border">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <a href="/" class="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+                <div class="w-6 h-6 rounded-md bg-accent flex items-center justify-center">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <span class="font-semibold text-sm tracking-tight text-ink">StandupAI</span>
+            </a>
+            <div class="hidden sm:flex items-center gap-1 ml-2 border-l border-surface-border pl-3">
+                <a href="/history-ui" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-ink bg-surface-card border border-surface-border">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    History
+                </a>
+                <a href="/insights-ui" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface-card border border-transparent hover:border-surface-border transition-all">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Insights
+                </a>
+            </div>
+        </div>
+        <a href="/" class="text-xs font-mono text-ink-muted hover:text-accent transition-colors flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            New standup
+        </a>
+    </div>
+</nav>
+
+<div class="relative z-10 max-w-5xl mx-auto px-6 py-10">
+
+    <!-- Header + controls -->
+    <div class="flex flex-col sm:flex-row sm:items-end gap-4 mb-8">
+        <div class="flex-1">
+            <h1 class="text-2xl font-semibold text-ink">Standup <span class="font-serif italic text-accent">History</span></h1>
+            <p class="text-sm text-ink-muted mt-1">Browse all saved standups per project.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <select id="project-select" class="rounded-lg px-3 py-2 pr-8 text-sm">
+                <option value="onblick">Onblick</option>
+                <option value="reccopilot">Reccopilot</option>
+                <option value="sales">Sales</option>
+                <option value="hrbp">HRBP</option>
+                <option value="rig">RIG</option>
+                <option value="general">General</option>
+            </select>
+            <input id="search-input" type="text" placeholder="Search…"
+                class="rounded-lg px-3 py-2 text-sm bg-surface-card border border-surface-border text-ink placeholder-ink-dim outline-none focus:border-accent font-mono w-40 transition-all focus:w-52"
+                style="font-family:'DM Mono',monospace">
+        </div>
+    </div>
+
+    <!-- Stats bar -->
+    <div id="stats-bar" class="hidden grid grid-cols-3 gap-3 mb-6">
+        <div class="rounded-xl border border-surface-border bg-surface-card px-4 py-3">
+            <div class="text-[10px] font-mono text-ink-dim uppercase tracking-widest mb-1">Total standups</div>
+            <div id="stat-total" class="text-xl font-semibold text-ink">—</div>
+        </div>
+        <div class="rounded-xl border border-surface-border bg-surface-card px-4 py-3">
+            <div class="text-[10px] font-mono text-ink-dim uppercase tracking-widest mb-1">Action items</div>
+            <div id="stat-actions" class="text-xl font-semibold text-emerald-400">—</div>
+        </div>
+        <div class="rounded-xl border border-surface-border bg-surface-card px-4 py-3">
+            <div class="text-[10px] font-mono text-ink-dim uppercase tracking-widest mb-1">Blockers logged</div>
+            <div id="stat-blockers" class="text-xl font-semibold text-red-400">—</div>
+        </div>
+    </div>
+
+    <!-- Loading skeleton -->
+    <div id="loading" class="flex flex-col gap-3">
+        <div class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-3">
+            <div class="shimmer-line w-1/3"></div><div class="shimmer-line w-full"></div><div class="shimmer-line w-2/3"></div>
+        </div>
+        <div class="rounded-xl border border-surface-border bg-surface-card p-5 flex flex-col gap-3">
+            <div class="shimmer-line w-1/4"></div><div class="shimmer-line w-full"></div><div class="shimmer-line w-3/4"></div>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div id="empty-state" class="hidden flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-12 h-12 rounded-xl bg-surface-card border border-surface-border flex items-center justify-center mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#55545f" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <p class="text-ink-muted text-sm">No standups saved for this project yet.</p>
+        <a href="/" class="mt-3 text-xs text-accent hover:underline">Generate your first summary →</a>
+    </div>
+
+    <!-- Records list -->
+    <div id="records-list" class="hidden flex flex-col gap-3"></div>
+</div>
+
+<script>
+const PROJECT_LABELS={onblick:'Onblick',reccopilot:'Reccopilot',sales:'Sales',rig:'RIG',hrbp:'HRBP',general:'General'};
+let allRecords=[];
+let expandedId=null;
+
+function formatDate(iso){
+    const d=new Date(iso);
+    return d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' · '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+}
+
+function renderRecords(records){
+    const list=document.getElementById('records-list');
+    list.innerHTML='';
+    if(!records.length){
+        document.getElementById('empty-state').classList.remove('hidden');
+        document.getElementById('empty-state').style.display='flex';
+        list.classList.add('hidden');
+        return;
+    }
+    document.getElementById('empty-state').classList.add('hidden');
+    list.classList.remove('hidden');
+    list.style.display='flex';
+
+    records.forEach(r=>{
+        const isExpanded=expandedId===r.id;
+        const members=Array.isArray(r.members)?r.members:[];
+        const actions=Array.isArray(r.action_items)?r.action_items:[];
+        const blockers=Array.isArray(r.blockers)?r.blockers:[];
+        const project=r.project||'general';
+
+        const card=document.createElement('div');
+        card.className='record-card rounded-xl border border-surface-border bg-surface-card overflow-hidden';
+        card.innerHTML=`
+            <button onclick="toggleRecord(${r.id})" class="w-full text-left p-4 flex items-start gap-4 hover:bg-surface-border/20 transition-colors">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap mb-2">
+                        <span class="badge-${project} text-[10px] font-mono px-2 py-0.5 rounded border">${PROJECT_LABELS[project]||project}</span>
+                        <span class="text-[11px] font-mono text-ink-dim">${formatDate(r.created_at)}</span>
+                        ${members.length?`<span class="text-[10px] font-mono text-ink-dim">· ${members.join(', ')}</span>`:''}
+                    </div>
+                    <p class="text-sm text-ink-muted line-clamp-2 leading-relaxed" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                        ${r.summary?r.summary.replace(/[#*_`]/g,'').slice(0,160)+'…':'No summary'}
+                    </p>
+                    <div class="flex gap-3 mt-2">
+                        ${actions.length?`<span class="text-[10px] font-mono text-emerald-400">✓ ${actions.length} action${actions.length!==1?'s':''}</span>`:''}
+                        ${blockers.length?`<span class="text-[10px] font-mono text-red-400">✕ ${blockers.length} blocker${blockers.length!==1?'s':''}</span>`:''}
+                    </div>
+                </div>
+                <svg class="shrink-0 mt-1 text-ink-dim transition-transform duration-200 ${isExpanded?'rotate-180':''}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="expand-${r.id}" class="${isExpanded?'':'hidden'} border-t border-surface-border">
+                <div class="p-5 flex flex-col gap-5">
+                    <!-- Full summary -->
+                    <div>
+                        <div class="text-[10px] font-mono text-ink-dim uppercase tracking-widest mb-3">Summary</div>
+                        <div class="summary-prose">${marked.parse(r.summary||'')}</div>
+                    </div>
+                    <!-- Action items + blockers -->
+                    ${(actions.length||blockers.length)?`
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-4 border-t border-surface-border">
+                        <div>
+                            <div class="text-[10px] font-mono text-emerald-400 uppercase tracking-widest mb-2">Action Items</div>
+                            <ul class="space-y-1.5">
+                                ${actions.length?actions.map(a=>`<li class="flex gap-2 text-xs text-ink-muted"><span class="text-emerald-400 shrink-0">›</span>${a}</li>`).join(''):'<li class="text-xs text-ink-dim italic">None</li>'}
+                            </ul>
+                        </div>
+                        <div>
+                            <div class="text-[10px] font-mono text-red-400 uppercase tracking-widest mb-2">Blockers</div>
+                            <ul class="space-y-1.5">
+                                ${blockers.length?blockers.map(b=>`<li class="flex gap-2 text-xs text-ink-muted"><span class="text-red-400 shrink-0">›</span>${b}</li>`).join(''):'<li class="text-xs text-ink-dim italic">None</li>'}
+                            </ul>
+                        </div>
+                    </div>`:''}
+                </div>
+            </div>`;
+        list.appendChild(card);
+    });
+}
+
+function toggleRecord(id){
+    expandedId=(expandedId===id)?null:id;
+    renderRecords(filterRecords());
+}
+
+function filterRecords(){
+    const q=document.getElementById('search-input').value.toLowerCase().trim();
+    if(!q)return allRecords;
+    return allRecords.filter(r=>{
+        const hay=[
+            r.summary||'',
+            (r.action_items||[]).join(' '),
+            (r.blockers||[]).join(' '),
+            (r.members||[]).join(' '),
+        ].join(' ').toLowerCase();
+        return hay.includes(q);
+    });
+}
+
+async function loadProject(project){
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('records-list').classList.add('hidden');
+    document.getElementById('empty-state').classList.add('hidden');
+    document.getElementById('stats-bar').classList.add('hidden');
+    expandedId=null;
+
+    try{
+        const res=await fetch(`/history/${project}?limit=50`);
+        const data=await res.json();
+        allRecords=data.records||[];
+
+        // Stats
+        const totalActions=allRecords.reduce((s,r)=>s+(r.action_items||[]).length,0);
+        const totalBlockers=allRecords.reduce((s,r)=>s+(r.blockers||[]).length,0);
+        document.getElementById('stat-total').textContent=allRecords.length;
+        document.getElementById('stat-actions').textContent=totalActions;
+        document.getElementById('stat-blockers').textContent=totalBlockers;
+        document.getElementById('stats-bar').classList.remove('hidden');
+        document.getElementById('stats-bar').style.display='grid';
+
+        document.getElementById('loading').classList.add('hidden');
+        renderRecords(filterRecords());
+    }catch(e){
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('records-list').classList.remove('hidden');
+        document.getElementById('records-list').style.display='flex';
+        document.getElementById('records-list').innerHTML=`<div class="text-red-400 font-mono text-sm p-4">Failed to load: ${e.message}</div>`;
+    }
+}
+
+document.getElementById('project-select').addEventListener('change',function(){loadProject(this.value);});
+document.getElementById('search-input').addEventListener('input',()=>renderRecords(filterRecords()));
+
+// Auto-select from URL param if present
+const urlProject=new URLSearchParams(window.location.search).get('project');
+if(urlProject){document.getElementById('project-select').value=urlProject;}
+loadProject(document.getElementById('project-select').value);
+</script>
+</body>
+</html>

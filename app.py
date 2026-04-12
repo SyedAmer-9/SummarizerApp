@@ -2,9 +2,10 @@ import os
 import re
 import json
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Optional
+from collections import defaultdict
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.templating import Jinja2Templates
@@ -54,10 +55,6 @@ def get_db(project: str) -> sqlite3.Connection:
 
 # ── Word-limit enforcer ────────────────────────────────────────────────────
 def enforce_word_limit(text: str, limit: int) -> str:
-    """
-    Hard-truncate to `limit` words, cutting at the last complete sentence.
-    Only applied in paragraphs mode.
-    """
     words = text.split()
     if len(words) <= limit:
         return text
@@ -68,23 +65,6 @@ def enforce_word_limit(text: str, limit: int) -> str:
 
 # ── Transcript parser ──────────────────────────────────────────────────────
 def parse_and_clean_transcript(text: str) -> tuple[str, list[str]]:
-    """
-    Handles three common Teams transcript formats:
-
-    Format A — inline:
-        Alice Kumar: I finished the auth module.
-
-    Format B — name/time on separate lines (most common Teams export):
-        Alice Kumar
-        10:05 AM
-        I finished the auth module.
-
-    Format C — bracketed timestamp prefix:
-        [10:05 AM] Alice Kumar: I finished the auth module.
-
-    Returns (cleaned_text, sorted_list_of_unique_first_names).
-    """
-
     NOISE_PHRASES = [
         "joined the meeting", "left the meeting", "raised hand",
         "lowered hand", "can you hear me", "let me share",
@@ -92,8 +72,6 @@ def parse_and_clean_transcript(text: str) -> tuple[str, list[str]]:
         "meeting started", "meeting ended", "turned on",
         "turned off", "background noise", "transcript",
     ]
-
-    # Words that look capitalised but are NOT person names
     STOPWORDS = {
         "note", "meeting", "everyone", "monday", "tuesday", "wednesday",
         "thursday", "friday", "saturday", "sunday", "today", "tomorrow",
@@ -109,8 +87,6 @@ def parse_and_clean_transcript(text: str) -> tuple[str, list[str]]:
 
     while i < len(lines):
         line = lines[i]
-
-        # Skip blank lines and noise
         if not line:
             i += 1
             continue
@@ -118,10 +94,6 @@ def parse_and_clean_transcript(text: str) -> tuple[str, list[str]]:
             i += 1
             continue
 
-        # ── Format B detection ─────────────────────────────────────────
-        # Pattern: a plain name line (no colon) followed by a timestamp line,
-        # followed by one or more content lines.
-        # e.g.  "Alice Kumar"  /  "10:05 AM"  /  "I finished the PR."
         is_name_line = (
             re.match(r'^[A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){0,3}$', line)
             and ":" not in line
@@ -137,13 +109,10 @@ def parse_and_clean_transcript(text: str) -> tuple[str, list[str]]:
             first_name = speaker.split()[0]
             if first_name.lower() not in STOPWORDS:
                 names.add(first_name)
-            # Skip the timestamp line
             i += 2
-            # Collect all content lines until the next speaker block or blank
             content_lines = []
             while i < len(lines):
                 next_line = lines[i].strip()
-                # Stop if we hit another name+timestamp block
                 if (
                     re.match(r'^[A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){0,3}$', next_line)
                     and ":" not in next_line
@@ -159,37 +128,29 @@ def parse_and_clean_transcript(text: str) -> tuple[str, list[str]]:
                 cleaned.append(f"{speaker}: {' '.join(content_lines)}")
             continue
 
-        # ── Format A / Format C ────────────────────────────────────────
-        # Matches "Alice:" or "[10:05 AM] Alice Kumar:" or "Alice Kumar:"
         match = re.match(r'^(?:\[.*?\]\s*)?([A-Z][a-zA-Z]+(?: [A-Z][a-zA-Z]+){0,3})\s*:', line)
         if match:
             speaker = match.group(1).strip()
             first_name = speaker.split()[0]
-            if (
-                first_name.lower() not in STOPWORDS
-                and len(speaker) < 40
-            ):
+            if first_name.lower() not in STOPWORDS and len(speaker) < 40:
                 names.add(first_name)
             cleaned.append(line)
         else:
-            # Keep lines that aren't noise and aren't bare metadata
-            # Filter out lone timestamps and short filler
             if len(line) > 5 and not re.match(r'^\d{1,2}:\d{2}', line):
                 cleaned.append(line)
-
         i += 1
 
     return "\n".join(cleaned), sorted(names)
 
 
-# ── Pydantic model ─────────────────────────────────────────────────────────
+# ── Pydantic models ────────────────────────────────────────────────────────
 class SummaryRequest(BaseModel):
     text: str
     length: int = 50
     format_type: str = "paragraphs"
     slide_count: Optional[int] = 3
     points_count: Optional[int] = 5
-    project: str  # mandatory — user always selects explicitly
+    project: str
 
 
 # ── Prompt builders ────────────────────────────────────────────────────────
@@ -200,7 +161,6 @@ def build_summary_prompt(req: SummaryRequest, names: list[str], cleaned: str) ->
             f"These people participated: {', '.join(names)}.\n"
             "Group the summary by person — one section per speaker.\n\n"
         )
-
     if req.format_type == "points":
         fmt = (
             f"Format: exactly {req.points_count} bullet points using Markdown (- item).\n"
@@ -217,15 +177,12 @@ def build_summary_prompt(req: SummaryRequest, names: list[str], cleaned: str) ->
         fmt = (
             f"Format: clear paragraphs in Markdown.\n"
             f"HARD WORD LIMIT: {req.length} words MAXIMUM. "
-            f"This is a strict ceiling — plan your response before writing and do not exceed it."
+            "This is a strict ceiling — plan your response before writing and do not exceed it."
         )
-
     return (
         "You are an expert technical scribe for a software company. "
         "Summarize the following standup transcript accurately and concisely.\n\n"
-        f"{name_section}"
-        f"{fmt}\n\n"
-        f"Transcript:\n{cleaned}"
+        f"{name_section}{fmt}\n\nTranscript:\n{cleaned}"
     )
 
 
@@ -246,10 +203,49 @@ Transcript:
 {transcript}"""
 
 
+# ── Insight helpers ────────────────────────────────────────────────────────
+def get_week_bounds(offset_weeks: int = 0):
+    """Return (start, end) ISO strings for a week, 0 = this week, -1 = last week."""
+    today = datetime.utcnow().date()
+    start_of_week = today - timedelta(days=today.weekday()) - timedelta(weeks=-offset_weeks)
+    end_of_week   = start_of_week + timedelta(days=6)
+    return start_of_week.isoformat(), end_of_week.isoformat()
+
+
+def words_overlap(a: str, b: str) -> float:
+    """Return Jaccard similarity between two strings (word sets)."""
+    wa = set(a.lower().split())
+    wb = set(b.lower().split())
+    if not wa or not wb:
+        return 0.0
+    return len(wa & wb) / len(wa | wb)
+
+
+def detect_carryover(this_items: list[str], last_items: list[str], threshold: float = 0.5) -> list[str]:
+    """Return items from this_items that look like repeats of something in last_items."""
+    carried = []
+    for item in this_items:
+        for prev in last_items:
+            if words_overlap(item, prev) >= threshold:
+                carried.append(item)
+                break
+    return carried
+
+
 # ── Routes ─────────────────────────────────────────────────────────────────
 @app.get("/")
 def home(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")
+
+
+@app.get("/history-ui")
+def history_ui(request: Request):
+    return templates.TemplateResponse(request=request, name="history.html")
+
+
+@app.get("/insights-ui")
+def insights_ui(request: Request):
+    return templates.TemplateResponse(request=request, name="insights.html")
 
 
 @app.get("/health")
@@ -264,30 +260,16 @@ def health_check():
 
 @app.post("/summarize")
 async def summarize_text(req: SummaryRequest):
-    """
-    SSE stream. Events emitted in order:
-      data: {"stage": "cleaning"}
-      data: {"stage": "names", "names": [...]}
-      data: {"token": "..."}                         ← repeated until summary complete
-      data: {"token": null, "corrected_summary":"…"} ← only if word limit was exceeded
-      event: action_items  data: {"action_items":[], "blockers":[]}
-      event: meta          data: {"project":"…", "names":[], "record_id": N}
-      event: done          data: {}
-    """
     if not req.text.strip():
         raise HTTPException(status_code=400, detail="Transcript cannot be empty.")
-
     if req.project not in KNOWN_PROJECTS:
         raise HTTPException(status_code=400, detail=f"Unknown project '{req.project}'.")
 
     async def stream():
-
-        # ── Stage 0 & 1: Instant Python parsing (no API call needed) ──────
         yield f"data: {json.dumps({'stage': 'cleaning'})}\n\n"
         cleaned, names = parse_and_clean_transcript(req.text)
         yield f"data: {json.dumps({'stage': 'names', 'names': names})}\n\n"
 
-        # ── Stage 2: Stream the summary ────────────────────────────────────
         summary_prompt = build_summary_prompt(req, names, cleaned)
         full_parts: list[str] = []
 
@@ -299,7 +281,6 @@ async def summarize_text(req: SummaryRequest):
                 token = chunk.text or ""
                 full_parts.append(token)
                 yield f"data: {json.dumps({'token': token})}\n\n"
-
         except Exception as e:
             error_msg = str(e)
             if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
@@ -308,21 +289,17 @@ async def summarize_text(req: SummaryRequest):
                 friendly = "API key error — check your .env file."
             else:
                 friendly = f"Gemini error: {error_msg}"
-            # BUG FIX: was building `user_msg` but yielding raw `str(e)` — now yields friendly message
             yield f"event: error\ndata: {json.dumps({'error': friendly})}\n\n"
             return
 
         summary_text = "".join(full_parts)
 
-        # ── Post-process: hard word-limit enforcement for paragraphs ───────
         if req.format_type == "paragraphs":
             enforced = enforce_word_limit(summary_text, req.length)
             if enforced != summary_text:
-                # Only send correction event if we actually trimmed something
                 summary_text = enforced
                 yield f"data: {json.dumps({'token': None, 'corrected_summary': summary_text})}\n\n"
 
-        # ── Stage 3: Action items + blockers ───────────────────────────────
         action_items: list[str] = []
         blockers: list[str] = []
         try:
@@ -339,7 +316,6 @@ async def summarize_text(req: SummaryRequest):
 
         yield f"event: action_items\ndata: {json.dumps({'action_items': action_items, 'blockers': blockers})}\n\n"
 
-        # ── Stage 4: Persist to SQLite ─────────────────────────────────────
         record_id = None
         try:
             conn = get_db(req.project)
@@ -372,7 +348,8 @@ async def summarize_text(req: SummaryRequest):
 
 
 @app.get("/history/{project}")
-def get_history(project: str, limit: int = 20):
+def get_history(project: str, limit: int = 30):
+    """Return last N standup records for a project, with parsed JSON fields."""
     try:
         conn = get_db(project)
         rows = conn.execute(
@@ -380,7 +357,16 @@ def get_history(project: str, limit: int = 20):
             (project, limit),
         ).fetchall()
         conn.close()
-        return {"project": project, "records": [dict(r) for r in rows]}
+        records = []
+        for r in rows:
+            d = dict(r)
+            for field in ("action_items", "blockers", "members"):
+                try:
+                    d[field] = json.loads(d[field] or "[]")
+                except Exception:
+                    d[field] = []
+            records.append(d)
+        return {"project": project, "records": records}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -388,3 +374,123 @@ def get_history(project: str, limit: int = 20):
 @app.get("/projects")
 def list_projects():
     return {"projects": sorted(p.stem for p in DATA_DIR.glob("*.db"))}
+
+
+@app.get("/insights/{project}")
+def get_insights(project: str):
+    """
+    Returns week-over-week comparison data for a project.
+    No LLM calls — pure SQL + Python math.
+    """
+    try:
+        conn = get_db(project)
+
+        this_start, this_end   = get_week_bounds(0)
+        last_start, last_end   = get_week_bounds(-1)
+
+        def fetch_week(start: str, end: str):
+            return conn.execute(
+                """SELECT * FROM standups
+                   WHERE project=? AND date(created_at) BETWEEN ? AND ?
+                   ORDER BY created_at ASC""",
+                (project, start, end),
+            ).fetchall()
+
+        this_rows = fetch_week(this_start, this_end)
+        last_rows = fetch_week(last_start, last_end)
+        conn.close()
+
+        def aggregate(rows):
+            all_action_items, all_blockers, all_members = [], [], []
+            daily_counts = defaultdict(int)  # date → standup count
+            member_counts = defaultdict(int) # name → appearances
+
+            for r in rows:
+                day = r["created_at"][:10]
+                daily_counts[day] += 1
+                try:
+                    ais = json.loads(r["action_items"] or "[]")
+                    all_action_items.extend(ais)
+                except Exception:
+                    pass
+                try:
+                    bls = json.loads(r["blockers"] or "[]")
+                    all_blockers.extend(bls)
+                except Exception:
+                    pass
+                try:
+                    mems = json.loads(r["members"] or "[]")
+                    all_members.extend(mems)
+                    for m in mems:
+                        member_counts[m] += 1
+                except Exception:
+                    pass
+
+            # Blocker frequency
+            blocker_freq: dict[str, int] = defaultdict(int)
+            for b in all_blockers:
+                blocker_freq[b] += 1
+
+            return {
+                "standup_count":  len(rows),
+                "action_item_count": len(all_action_items),
+                "blocker_count":  len(all_blockers),
+                "unique_members": len(set(all_members)),
+                "daily_counts":   dict(daily_counts),
+                "member_counts":  dict(member_counts),
+                "top_blockers":   sorted(blocker_freq.items(), key=lambda x: -x[1])[:5],
+                "all_action_items": all_action_items,
+                "all_blockers":   all_blockers,
+            }
+
+        this_agg = aggregate(this_rows)
+        last_agg = aggregate(last_rows)
+
+        # Carry-over detection: action items from this week that also appeared last week
+        carryover = detect_carryover(
+            this_agg["all_action_items"],
+            last_agg["all_action_items"],
+        )
+
+        # Recurring blockers: appear in both weeks
+        recurring_blockers = detect_carryover(
+            this_agg["all_blockers"],
+            last_agg["all_blockers"],
+            threshold=0.4,
+        )
+
+        # Build chart data: last 14 days with standup counts per day
+        chart_days = []
+        for i in range(13, -1, -1):
+            d = (datetime.utcnow().date() - timedelta(days=i)).isoformat()
+            this_c = this_agg["daily_counts"].get(d, 0)
+            last_c = last_agg["daily_counts"].get(d, 0)
+            chart_days.append({"date": d, "this_week": this_c, "last_week": last_c})
+
+        def pct_change(now, prev):
+            if prev == 0:
+                return None
+            return round(((now - prev) / prev) * 100, 1)
+
+        return {
+            "project": project,
+            "this_week": {
+                "range": f"{this_start} → {this_end}",
+                **this_agg,
+            },
+            "last_week": {
+                "range": f"{last_start} → {last_end}",
+                **last_agg,
+            },
+            "changes": {
+                "standup_count":     pct_change(this_agg["standup_count"],     last_agg["standup_count"]),
+                "action_item_count": pct_change(this_agg["action_item_count"], last_agg["action_item_count"]),
+                "blocker_count":     pct_change(this_agg["blocker_count"],     last_agg["blocker_count"]),
+            },
+            "carryover_action_items": carryover,
+            "recurring_blockers":     recurring_blockers,
+            "chart_data":             chart_days,
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
